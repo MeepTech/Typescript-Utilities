@@ -1,0 +1,5 @@
+# The build output folders:
+build
+dist
+node_modules
+*.tsbuildinfo

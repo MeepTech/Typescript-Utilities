@@ -1,0 +1,57 @@
+{
+  "name": "@meep-tech/utils",
+  "version": "0.0.1",
+  "description": "Typescript Utilities",
+  "main": "lib.js",
+  "types": "lib.d.ts",
+  "homepage": "https://github.com/MeepTech/TypeScript-Utilities",
+  "bugs": {
+    "url": "https://github.com/MeepTech/TypeScript-Utilities/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MeepTech/TypeScript-Utilities.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Meep.Tech",
+    "email": "meepdottech@gmail.com",
+    "url": "http://meep.tech"
+  },
+  "scripts": {
+    "pack": "cd \"..\\..\\dist\\npm\\prod\" && npm pack \"..\\..\\..\\build\\prod\""
+  },
+  "private": true,
+  "keywords": [
+    "typescript",
+    "utilities",
+    "utils",
+    "javascript",
+    "protected",
+    "ward",
+    "warded",
+    "warding",
+    "lazy",
+    "cached",
+    "cache",
+    "memoize",
+    "memoized",
+    "memoization",
+    "decorators",
+    "lazy-load",
+    "lazyload",
+    "lazyloading",
+    "lazy-loaded",
+    "lazy-loading",
+    "lazyloaded",
+    "lazyloading",
+    "loop",
+    "count",
+    "size",
+    "array",
+    "iterable",
+    "iterator",
+    "js",
+    "ts"
+  ]
+}

@@ -73,8 +73,8 @@ export const implementsWardConfig = <
  */
 function ward<
   T extends object,
-  TPropKeysToOmit extends WardableKeysOf<T> = Ward.DefaultHiddenKeysOf<T>,
-  TPropKeysToProtect extends WardableKeysOf<T> = Ward.DefaultProtectedKeysOf<T>
+  TPropKeysToOmit extends KeysToWard<T> = Ward.DefaultHiddenKeysOf<T>,
+  TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>
 >(
   target: T,
   hiddenKeys?: ReadonlyArray<TPropKeysToOmit>,
@@ -83,8 +83,8 @@ function ward<
 
 function ward<
   T extends object,
-  TPropKeysToOmit extends WardableKeysOf<T> = Ward.DefaultHiddenKeysOf<T>,
-  TPropKeysToProtect extends WardableKeysOf<T> = Ward.DefaultProtectedKeysOf<T>
+  TPropKeysToOmit extends KeysToWard<T> = Ward.DefaultHiddenKeysOf<T>,
+  TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>
 >(
   target: T,
   options: RequireAtLeastOne<{
@@ -95,8 +95,8 @@ function ward<
 
 function ward<
   T extends object,
-  TPropKeysToOmit extends WardableKeysOf<T> = Ward.DefaultHiddenKeysOf<T>,
-  TPropKeysToProtect extends WardableKeysOf<T> = Ward.DefaultProtectedKeysOf<T>
+  TPropKeysToOmit extends KeysToWard<T> = Ward.DefaultHiddenKeysOf<T>,
+  TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>
 >(
   target: T,
   ...wards: readonly [hiddenKeys?: ReadonlyArray<TPropKeysToOmit>, protectedKeys?: ReadonlyArray<TPropKeysToProtect>]
@@ -437,8 +437,8 @@ ward.isNot
  */
 function WardConstructor<
   T extends object,
-  TPropKeysToOmit extends WardableKeysOf<T> = Ward.DefaultHiddenKeysOf<T>,
-  TPropKeysToProtect extends WardableKeysOf<T> = Ward.DefaultProtectedKeysOf<T>
+  TPropKeysToOmit extends KeysToWard<T> = Ward.DefaultHiddenKeysOf<T>,
+  TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>
 >(
   this: Ward<T, TPropKeysToOmit, TPropKeysToProtect>,
   target: T,
@@ -521,8 +521,8 @@ export function isWard<
  */
 export function isWarded<
   T extends object,
-  TPropKeysToOmit extends WardableKeysOf<T> = Ward.DefaultHiddenKeysOf<T>,
-  TPropKeysToProtect extends WardableKeysOf<T> = Ward.DefaultProtectedKeysOf<T>
+  TPropKeysToOmit extends KeysToWard<T> = Ward.DefaultHiddenKeysOf<T>,
+  TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>
 >(
   value: unknown,
   withHiddenKeys?: ReadonlyArray<TPropKeysToOmit>,
@@ -592,8 +592,8 @@ export function hasWardConfig<
  */
 type Ward<
   T extends object,
-  TPropKeysToOmit extends WardableKeysOf<T> = Ward.DefaultHiddenKeysOf<T>,
-  TPropKeysToProtect extends WardableKeysOf<T> = Ward.DefaultProtectedKeysOf<T>,
+  TPropKeysToOmit extends KeysToWard<T> = Ward.DefaultHiddenKeysOf<T>,
+  TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>,
 >
   = (TPropKeysToOmit extends keyof T
     ? Omit<Ward.ProtectedPropertiesOf<T, TPropKeysToProtect>, TPropKeysToOmit>
@@ -606,7 +606,7 @@ type Ward<
      */
     try: WardTryer<T>
     [$WARD]: {
-      config: Ward.Config<T, WardableKeysOf<T>, WardableKeysOf<T>>;
+      config: Ward.Config<T, KeysToWard<T>, KeysToWard<T>>;
       try: WardTryer<T>;
     }
   };
@@ -645,8 +645,8 @@ interface WardConstructor {
    */
   new <
     T extends object,
-    TPropKeysToOmit extends WardableKeysOf<T> = Ward.DefaultHiddenKeysOf<T>,
-    TPropKeysToProtect extends WardableKeysOf<T> = Ward.DefaultProtectedKeysOf<T>
+    TPropKeysToOmit extends KeysToWard<T> = Ward.DefaultHiddenKeysOf<T>,
+    TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>
   >(
     target: T,
     hiddenKeys?: ReadonlyArray<TPropKeysToOmit> | undefined,
@@ -658,8 +658,8 @@ interface WardConstructor {
    */
   new <
     T extends object,
-    TPropKeysToOmit extends WardableKeysOf<T> = Ward.DefaultHiddenKeysOf<T>,
-    TPropKeysToProtect extends WardableKeysOf<T> = Ward.DefaultProtectedKeysOf<T>
+    TPropKeysToOmit extends KeysToWard<T> = Ward.DefaultHiddenKeysOf<T>,
+    TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>
   >(
     target: T,
     options: RequireAtLeastOne<{
@@ -673,8 +673,8 @@ interface WardConstructor {
    */
   <
     T extends object,
-    TPropKeysToOmit extends WardableKeysOf<T> = Ward.DefaultHiddenKeysOf<T>,
-    TPropKeysToProtect extends WardableKeysOf<T> = Ward.DefaultProtectedKeysOf<T>
+    TPropKeysToOmit extends KeysToWard<T> = Ward.DefaultHiddenKeysOf<T>,
+    TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>
   >(
     target: T,
     hiddenKeys?: ReadonlyArray<TPropKeysToOmit> | undefined,
@@ -686,8 +686,8 @@ interface WardConstructor {
    */
   <
     T extends object,
-    TPropKeysToOmit extends WardableKeysOf<T> = Ward.DefaultHiddenKeysOf<T>,
-    TPropKeysToProtect extends WardableKeysOf<T> = Ward.DefaultProtectedKeysOf<T>
+    TPropKeysToOmit extends KeysToWard<T> = Ward.DefaultHiddenKeysOf<T>,
+    TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>
   >(
     target: T,
     options: RequireAtLeastOne<{
@@ -701,7 +701,13 @@ interface WardConstructor {
  * All potentially wardable keys for a given type.
  */
 export type WardableKeysOf<T extends object>
-  = (keyof T | undefined | unknown);
+  = KeyofTExceptCtor<T>;
+
+/**
+ * Inputs for wardable keys for configs
+ */
+export type KeysToWard<T extends object>
+  = WardableKeysOf<T> | undefined | unknown
 
 // nested types
 namespace Ward {
@@ -735,15 +741,15 @@ namespace Ward {
    * A config for a ward
    */
   export type Config<
-    T extends { [key in WardableKeysOf<T> extends unknown ? never : WardableKeysOf<T>]: any },
-    TPropKeysToOmit extends WardableKeysOf<T> = unknown,
-    TPropKeysToProtect extends WardableKeysOf<T> = unknown,
-    TAlterations extends { readonly [key in keyof T]?: Alter<unknown, T, key> } | undefined = undefined
+    T extends { [key in WardableKeysOf<T>]: any },
+    TPropKeysToOmit extends KeysToWard<T> = unknown,
+    TPropKeysToProtect extends KeysToWard<T> = unknown,
+    TAlterations extends { readonly [key in WardableKeysOf<T>]?: Alter<unknown, T, key> } | undefined = undefined
   > = RequireAtLeastOne<{
     readonly DEFAULT_HIDDEN_KEYS: ReadonlyArray<TPropKeysToOmit>;
     readonly DEFAULT_PROTECTED_KEYS: ReadonlyArray<TPropKeysToProtect>;
     readonly DEFAULT_ALTERATIONS: TAlterations;
-    readonly DEFAULT_FACADES: ReadonlyArray<Facade<T, Exclude<keyof T, TPropKeysToOmit>>>;
+    readonly DEFAULT_FACADES: ReadonlyArray<Facade<T, Exclude<WardableKeysOf<T>, TPropKeysToOmit>>>;
   }>;
 
   /**
@@ -839,7 +845,7 @@ namespace Ward {
   /**
    * Get a representation of the properties that will be omitted from a type.
    */
-  export type HiddenPropertiesOf<T extends object, TPropKeysToOmit extends WardableKeysOf<T> = DefaultHiddenKeysOf<T>>
+  export type HiddenPropertiesOf<T extends object, TPropKeysToOmit extends KeysToWard<T> = DefaultHiddenKeysOf<T>>
     = TPropKeysToOmit extends keyof T
     ? Pick<T, TPropKeysToOmit>
     : {}
@@ -847,7 +853,7 @@ namespace Ward {
   /**
    * Get a representation of the properties that will be omitted from a type.
    */
-  export type HidePropertiesOf<T extends object, TPropKeysToOmit extends WardableKeysOf<T> = DefaultHiddenKeysOf<T>>
+  export type HidePropertiesOf<T extends object, TPropKeysToOmit extends KeysToWard<T> = DefaultHiddenKeysOf<T>>
     = TPropKeysToOmit extends keyof T
     ? Omit<T, TPropKeysToOmit>
     : T
@@ -877,7 +883,7 @@ namespace Ward {
   /**
  * Get a representation of the protected ward properties of a type.
  */
-  export type ProtectedPropertiesOf<T extends object, TPropKeysToProtect extends WardableKeysOf<T> = DefaultProtectedKeysOf<T>>
+  export type ProtectedPropertiesOf<T extends object, TPropKeysToProtect extends KeysToWard<T> = DefaultProtectedKeysOf<T>>
     = TPropKeysToProtect extends keyof T
     ? Readonly<Pick<T, TPropKeysToProtect>>
     : {}
@@ -885,7 +891,7 @@ namespace Ward {
   /**
    * Get a representation of the protected ward properties of a type.
    */
-  export type ProtectPropertiesOf<T extends object, TPropKeysToProtect extends WardableKeysOf<T> = DefaultProtectedKeysOf<T>>
+  export type ProtectPropertiesOf<T extends object, TPropKeysToProtect extends KeysToWard<T> = DefaultProtectedKeysOf<T>>
     = TPropKeysToProtect extends keyof T
     ? Protect<T, TPropKeysToProtect>
     : {}
@@ -905,10 +911,10 @@ export type TryResult<
 
 /** @alias {@link Ward.Config} */
 export type WardConfig<
-  T extends { [key in WardableKeysOf<T> extends unknown ? never : WardableKeysOf<T>]: any },
-  TPropKeysToOmit extends WardableKeysOf<T> = unknown,
-  TPropKeysToProtect extends WardableKeysOf<T> = unknown,
-  TAlterations extends { readonly [key in KeyofTExceptCtor<T>]?: Alter<unknown, T, key> } | undefined = undefined
+  T extends { [key in WardableKeysOf<T>]: any },
+  TPropKeysToOmit extends KeysToWard<T> = unknown,
+  TPropKeysToProtect extends KeysToWard<T> = unknown,
+  TAlterations extends { readonly [key in WardableKeysOf<T>]?: Alter<unknown, T, key> } | undefined = undefined
 > = Ward.Config<T, TPropKeysToOmit, TPropKeysToProtect, TAlterations>;
 
 /** @alias {@link Ward.Facade} */

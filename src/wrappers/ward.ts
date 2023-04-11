@@ -45,8 +45,6 @@ export {
 
 //#endregion
 
-
-
 //#region functional implementation
 
 /**
@@ -673,18 +671,6 @@ interface WardConstructor {
   ): Ward<T, TPropKeysToOmit, TPropKeysToProtect>;
 }
 
-/**
- * All potentially wardable keys for a given type.
- */
-export type WardableKeysOf<T extends object>
-  = KeyofTExceptCtor<T>;
-
-/**
- * Inputs for wardable keys for configs
- */
-export type KeysToWard<T extends object>
-  = WardableKeysOf<T> | undefined | unknown
-
 // nested types
 namespace Ward {
 
@@ -720,12 +706,13 @@ namespace Ward {
     T extends { [key in WardableKeysOf<T>]: unknown },
     TPropKeysToOmit extends KeysToWard<T> = unknown,
     TPropKeysToProtect extends KeysToWard<T> = unknown,
-    TAlterations extends { readonly [key in WardableKeysOf<T>]?: Alter<unknown, T, key> } | unknown = unknown
+    TChildWards extends {
+      [key in Exclude<WardableKeysOf<T>, TPropKeysToOmit>]?: Config<T[key]>
+    } | unknown = unknown,
   > = RequireAtLeastOne<{
     readonly DEFAULT_HIDDEN_KEYS: ReadonlyArray<TPropKeysToOmit>;
     readonly DEFAULT_PROTECTED_KEYS: ReadonlyArray<TPropKeysToProtect>;
-    readonly DEFAULT_FACADES: ReadonlyArray<Facade<T, Exclude<WardableKeysOf<T>, TPropKeysToOmit>>>;
-    readonly DEFAULT_ALTERATIONS: TAlterations;
+    readonly DEFAULT_CHILD_WARDS: TChildWards;
   }>;
 
   /**
@@ -875,7 +862,7 @@ namespace Ward {
   /**
    * Can check if a given object has a Ward configuration with default hidden keys.
    */
-  export type HasDefaultAlteredProperties<
+  export type HasDefaultChildWards<
     T extends object
   > = HasConfig<T> extends true
     ? (ConfigOf<T> extends { DEFAULT_ALTERATIONS: any }
@@ -886,7 +873,7 @@ namespace Ward {
   /**
    * Used to get the default hidden keys for a given type.
    */
-  export type DefaultAlteredKeysOf<
+  export type DefaultWardedChildrenKeysOf<
     T extends object
   > = HasConfig<T> extends true
     ? (ConfigOf<T> extends { DEFAULT_ALTERATIONS: any }
@@ -895,9 +882,9 @@ namespace Ward {
     : unknown;
 
   /**
-   * Used to get the default hidden keys for a given type.
+   * Used to get the default wardec children props for a given type.
    */
-  export type DefaultAlteredPropertiesOf<
+  export type DefaultWardedChildrenOf<
     T extends object
   > = HasConfig<T> extends true
     ? (ConfigOf<T> extends { DEFAULT_ALTERATIONS: any }
@@ -905,26 +892,23 @@ namespace Ward {
       : unknown)
     : unknown;
 
-  /**
- * Get a representation of the protected ward properties of a type.
- */
-  export type AlteredPropertiesOf<T extends object, TAlteredProperties extends KeysToWard<T> = DefaultProtectedKeysOf<T>>
-    = TAlteredProperties extends keyof T
-    ? Readonly<Pick<T, TAlteredProperties>>
-    : {}
-
-  /**
-   * Get a representation of the protected ward properties of a type.
-   */
-  export type AlterPropertiesOf<T extends object, TPropKeysToProtect extends KeysToWard<T> = DefaultProtectedKeysOf<T>>
-    = TPropKeysToProtect extends keyof T
-    ? Protect<T, TPropKeysToProtect>
-    : {}
   //#endregion
 
 }
 
 //#region flat type exports
+
+/**
+ * All potentially wardable keys for a given type.
+ */
+export type WardableKeysOf<T extends object>
+  = KeyofTExceptCtor<T>;
+
+/**
+ * Inputs for wardable keys for configs
+ */
+export type KeysToWard<T extends object>
+  = WardableKeysOf<T> | undefined | unknown
 
 /** @alias {@link Ward.TryResult} */
 export type TryResult<
@@ -938,21 +922,10 @@ export type WardConfig<
   T extends { [key in WardableKeysOf<T>]: any },
   TPropKeysToOmit extends KeysToWard<T> = unknown,
   TPropKeysToProtect extends KeysToWard<T> = unknown,
-  TAlterations extends { readonly [key in WardableKeysOf<T>]?: Alter<unknown, T, key> } | undefined = undefined
-> = Ward.Config<T, TPropKeysToOmit, TPropKeysToProtect, TAlterations>;
-
-/** @alias {@link Ward.Facade} */
-export interface Facade<
-  TObject extends { [key in TKey]: any },
-  TKey extends string | number | symbol
-> extends Ward.Facade<TObject, TKey> { }
-
-/** @alias {@link Ward.Alter} */
-export type Alter<
-  TEditedProp,
-  TObject,
-  TKey extends string | number | symbol,
-> = Ward.Alter<TEditedProp, TObject, TKey>;
+  TChildWards extends {
+    [key in Exclude<WardableKeysOf<T>, TPropKeysToOmit>]?: Ward.Config<T[key]>
+  } | unknown = unknown,
+> = Ward.Config<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>;
 
 /** @alias {@link Ward.ConfigOf} */
 export type WardConfigOf<

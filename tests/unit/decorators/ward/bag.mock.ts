@@ -4,8 +4,7 @@ import {
   WardConfigOf,
   implementsWardConfig,
   WardConfig,
-  Alter,
-  WardableKeysOf
+  Alter
 } from '../../../../src/wrappers/ward';
 
 //#region mocks
@@ -29,12 +28,14 @@ class Bag_withDefaults extends Bag implements Bag_withDefaults {
   static readonly [$WARD] = {
     DEFAULT_PROTECTED_KEYS: ["contents"] as const
   }
+
   constructor(contents: string) {
     super(contents);
   }
 }
 
 export { Bag_withDefaults };
+
 
 interface Bag_withDefaultAlterations {
   constructor: Function & {
@@ -44,25 +45,23 @@ interface Bag_withDefaultAlterations {
 
 @implementsWardConfig
 class Bag_withDefaultAlterations extends Bag implements Bag_withDefaultAlterations {
-  static readonly [$WARD]: WardConfig<
-    Bag_withDefaultAlterations,
-    undefined,
-    'contents',
-    { readonly contents?: Alter<number, Bag_withDefaultAlterations, 'contents'> }
-  > = {
+  static readonly [$WARD] = {
     DEFAULT_PROTECTED_KEYS: ["contents"] as const,
     DEFAULT_ALTERATIONS: {
       contents:
-        {
-          key: "contents",
-          get: (thisArg: Bag_withDefaultAlterations,) => {
-            return parseInt(thisArg["contents"]);
-          }
-        } as const as Alter<number, Bag_withDefaultAlterations, "contents">
+      {
+        key: "contents",
+        get: (thisArg: Bag_withDefaultAlterations) => {
+          return parseInt(thisArg["contents"]);
+        }
+      }
     }
   } as const;
-}
 
+  constructor(contents: string) {
+    super(contents);
+  }
+}
 
 export { Bag_withDefaultAlterations };
 

@@ -1,4 +1,4 @@
-import { RequireAtLeastOne, RequireOnlyOne } from "../types/or";
+import { RequireAtLeastOne } from "../types/or";
 import { Class } from '../types/ctor';
 import { implementsStatic } from "../decorators/static";
 import { Protect } from "../types/mod";
@@ -45,24 +45,7 @@ export {
 
 //#endregion
 
-//#region decorators
 
-/**
- * Used to indicate a class has a default warding configuration.
- * 
- * @decorator class
- * @alias {@link implementsStatic<Ward.ClassWithConfig<T>>}
- */
-export const implementsWardConfig = <
-  TClass extends Class<T>,
-  T extends ClassWithWardConfig<T> = InstanceType<TClass>
->(
-  cls: TClass,
-  _: any
-  // make the extended constructor a requirement of the class itself:
-) => { cls };
-
-//#endregion
 
 //#region functional implementation
 
@@ -410,9 +393,6 @@ ward.CONFIG_KEY
 ward.hasConfig
   = hasWardConfig;
 
-ward.implementsConfig
-  = implementsWardConfig;
-
 ward.Can
   = WardPropertyAccess;
 
@@ -479,10 +459,6 @@ Ward.SYMBOL
 /** @ts-expect-error: readonly-first time set */
 Ward.hasConfig
   = hasWardConfig;
-
-/** @ts-expect-error: readonly-first time set */
-Ward.implementsConfig
-  = implementsWardConfig;
 
 /** @ts-expect-error: readonly-first time set */
 Ward.Can
@@ -741,15 +717,15 @@ namespace Ward {
    * A config for a ward
    */
   export type Config<
-    T extends { [key in WardableKeysOf<T>]: any },
+    T extends { [key in WardableKeysOf<T>]: unknown },
     TPropKeysToOmit extends KeysToWard<T> = unknown,
     TPropKeysToProtect extends KeysToWard<T> = unknown,
-    TAlterations extends { readonly [key in WardableKeysOf<T>]?: Alter<unknown, T, key> } | undefined = undefined
+    TAlterations extends { readonly [key in WardableKeysOf<T>]?: Alter<unknown, T, key> } | unknown = unknown
   > = RequireAtLeastOne<{
     readonly DEFAULT_HIDDEN_KEYS: ReadonlyArray<TPropKeysToOmit>;
     readonly DEFAULT_PROTECTED_KEYS: ReadonlyArray<TPropKeysToProtect>;
-    readonly DEFAULT_ALTERATIONS: TAlterations;
     readonly DEFAULT_FACADES: ReadonlyArray<Facade<T, Exclude<WardableKeysOf<T>, TPropKeysToOmit>>>;
+    readonly DEFAULT_ALTERATIONS: TAlterations;
   }>;
 
   /**
@@ -896,6 +872,54 @@ namespace Ward {
     ? Protect<T, TPropKeysToProtect>
     : {}
 
+  /**
+   * Can check if a given object has a Ward configuration with default hidden keys.
+   */
+  export type HasDefaultAlteredProperties<
+    T extends object
+  > = HasConfig<T> extends true
+    ? (ConfigOf<T> extends { DEFAULT_ALTERATIONS: any }
+      ? true
+      : false)
+    : false;
+
+  /**
+   * Used to get the default hidden keys for a given type.
+   */
+  export type DefaultAlteredKeysOf<
+    T extends object
+  > = HasConfig<T> extends true
+    ? (ConfigOf<T> extends { DEFAULT_ALTERATIONS: any }
+      ? keyof ConfigOf<T>["DEFAULT_ALTERATIONS"]
+      : unknown)
+    : unknown;
+
+  /**
+   * Used to get the default hidden keys for a given type.
+   */
+  export type DefaultAlteredPropertiesOf<
+    T extends object
+  > = HasConfig<T> extends true
+    ? (ConfigOf<T> extends { DEFAULT_ALTERATIONS: any }
+      ? ConfigOf<T>["DEFAULT_ALTERATIONS"]
+      : unknown)
+    : unknown;
+
+  /**
+ * Get a representation of the protected ward properties of a type.
+ */
+  export type AlteredPropertiesOf<T extends object, TAlteredProperties extends KeysToWard<T> = DefaultProtectedKeysOf<T>>
+    = TAlteredProperties extends keyof T
+    ? Readonly<Pick<T, TAlteredProperties>>
+    : {}
+
+  /**
+   * Get a representation of the protected ward properties of a type.
+   */
+  export type AlterPropertiesOf<T extends object, TPropKeysToProtect extends KeysToWard<T> = DefaultProtectedKeysOf<T>>
+    = TPropKeysToProtect extends keyof T
+    ? Protect<T, TPropKeysToProtect>
+    : {}
   //#endregion
 
 }
@@ -1060,6 +1084,32 @@ type WardTryer<T extends object> = (
 );
 
 //#endregion
+
+//#endregion
+
+//#region decorators
+
+/**
+ * Used to indicate a class has a default warding configuration.
+ * 
+ * @decorator class
+ * @alias {@link implementsStatic<ClassWithWardConfig<T>>}
+ */
+export const implementsWardConfig = <
+  TClass extends Class<T>,
+  T extends (object & ClassWithWardConfig<T extends object ? T : never>) | unknown = InstanceType<TClass>
+>(
+  cls: TClass,
+  _: any
+  // make the extended constructor a requirement of the class itself:
+) => { cls };
+
+ward.implementsConfig
+  = implementsWardConfig;
+
+/** @ts-expect-error: readonly-first time set */
+Ward.implementsConfig
+  = implementsWardConfig;
 
 //#endregion
 

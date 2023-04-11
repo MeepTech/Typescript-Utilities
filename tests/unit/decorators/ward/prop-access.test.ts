@@ -348,15 +348,15 @@ describe("warded", () => {
     });
   });
 
-  describe("hidden", () => {
-
-  });
+  /*describe("hidden", () => {
+    // TODO: test hidden props
+  });*/
 });
-
+/*
 describe("un-warded", () => {
-
+  // TODO: test un-warded objects
   // Missing props should act the same as hidden props
   describe("missing", () => {
-
+    // TODO: test missing props
   });
-});
+});*/

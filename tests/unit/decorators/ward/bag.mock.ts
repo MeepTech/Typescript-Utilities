@@ -3,6 +3,9 @@ import {
   $WARD,
   WardConfigOf,
   implementsWardConfig,
+  WardConfig,
+  Alter,
+  WardableKeysOf
 } from '../../../../src/wrappers/ward';
 
 //#region mocks
@@ -33,9 +36,40 @@ class Bag_withDefaults extends Bag implements Bag_withDefaults {
 
 export { Bag_withDefaults };
 
+interface Bag_withDefaultAlterations {
+  constructor: Function & {
+    readonly [$WARD]: typeof Bag_withDefaultAlterations[typeof $WARD];
+  }
+}
+
+@implementsWardConfig
+class Bag_withDefaultAlterations extends Bag implements Bag_withDefaultAlterations {
+  static readonly [$WARD]: WardConfig<
+    Bag_withDefaultAlterations,
+    undefined,
+    'contents',
+    { readonly contents?: Alter<number, Bag_withDefaultAlterations, 'contents'> }
+  > = {
+    DEFAULT_PROTECTED_KEYS: ["contents"] as const,
+    DEFAULT_ALTERATIONS: {
+      contents:
+        {
+          key: "contents",
+          get: (thisArg: Bag_withDefaultAlterations,) => {
+            return parseInt(thisArg["contents"]);
+          }
+        } as const as Alter<number, Bag_withDefaultAlterations, "contents">
+    }
+  } as const;
+}
+
+
+export { Bag_withDefaultAlterations };
+
 //#endregion
 
 //#region type tests
+// TODO: get a real type-testing library?
 // Setup
 
 type Bag_withDefaultsConfig

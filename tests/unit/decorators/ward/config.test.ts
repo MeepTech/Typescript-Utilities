@@ -1,9 +1,9 @@
 import Ward, { ward } from "../../../../src/wrappers/ward";
 import { Bag_withDefaults } from "./bag.mock";
 
-describe("DEFAULT_HIDDEN_PROPERTIES", () => {
-
-});
+/*describe("DEFAULT_HIDDEN_PROPERTIES", () => {
+// TODO: test hidden properties
+});*/
 
 describe("DEFAULT_PROTECTED_PROPERTIES", () => {
   test("get", () => {

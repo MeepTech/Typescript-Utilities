@@ -1,3 +1,5 @@
+import * as _ from '../../../src/lib';
+
 import {
   describe,
   test,

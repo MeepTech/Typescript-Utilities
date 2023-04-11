@@ -71,11 +71,15 @@ export {
   $WRAP,
 } from "./wrappers/wrap";
 
-// - wards
+// - ward
 export {
   default as Ward,
   ward,
-  $WARD
+  $WARD,
+  implementsWardConfig,
+  isWard,
+  isWarded,
+  isNotWarded
 } from "./wrappers/ward";
 
 // - mod
@@ -89,7 +93,16 @@ export {
 export {
   default as Hook,
   hook,
-  $HOOK
+  $HOOK,
+  isHook
 } from "./wrappers/hook";
+
+// - bevel
+export {
+  default as Bevel,
+  bevel,
+  $BEVEL,
+  isBevel
+} from "./wrappers/bevel";
 
 //#endregion

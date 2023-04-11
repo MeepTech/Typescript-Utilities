@@ -1,6 +1,6 @@
 {
   "name": "@meep-tech/utils",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Typescript Utilities",
   "main": "lib.js",
   "homepage": "https://github.com/MeepTech/TypeScript-Utilities",
@@ -20,10 +20,16 @@
   "scripts": {
     "check-types": "tsc -noEmit -p \"tsconfig.check.json\"",
     "test": "tsc -noEmit -p \"tsconfig.check.json\" && jest",
-    "dev-build": "npm run check-types && webpack --env dev --progress && tsc -p \"tsconfig.dev.json\"",
+    "build-dev": "npm run check-types && webpack --env dev --progress && tsc -p \"tsconfig.dev.json\"",
     "build": "npm run check-types && webpack && tsc -p \"tsconfig.prod.json\"",
-    "dev-pack": "npm run dev-build && mkdir \"dist\\npm\\dev\" && cd \"dist\\npm\\dev\" && npm pack \"../../../build/dev\"",
-    "pack": "npm run build && mkdir \"dist\\npm\\prod\" && cd \"dist\\npm\\prod\" && npm pack \"../../../build/prod\""
+    "pack-dev": "npm run build-dev && npm run init-pack-dir-dev && npm run cd-pack-dir-dev && npm run pack-into-dir-dev",
+    "pack": "npm run build && npm run init-pack-dir && npm run cd-pack-dir && npm run pack-into-dir",
+    "init-pack-dir-dev": "rm -r -f \"dist/npm/dev\" && mkdir -p \"dist/npm/dev\"",
+    "init-pack-dir": "rm -r -f \"dist/npm/prod\" && mkdir -p \"dist/npm/prod\"",
+    "cd-pack-dir-dev": "cd \"dist/npm/dev\"",
+    "cd-pack-dir": "cd \"dist/npm/prod\"",
+    "pack-into-dir-dev": "cd \"dist/npm/dev\" && npm pack \"../../../build/dev\"",
+    "pack-into-dir": "cd \"dist/npm/prod\" && npm pack \"../../../build/prod\""
   },
   "private": true,
   "devDependencies": {

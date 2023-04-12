@@ -55,43 +55,58 @@ export {
 function ward<
   T extends object,
   TPropKeysToOmit extends KeysToWard<T> = Ward.DefaultHiddenKeysOf<T>,
-  TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>
+  TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>,
+  TChildWards extends ChildrenToWard<T, TPropKeysToOmit> = Ward.DefaultWardedChildrenOf<T>
 >(
   target: T,
   hiddenKeys?: ReadonlyArray<TPropKeysToOmit>,
   protectedKeys?: ReadonlyArray<TPropKeysToProtect>,
-): Ward<T, TPropKeysToOmit, TPropKeysToProtect>;
+  wardedChildren?: TChildWards
+): Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>;
 
 function ward<
   T extends object,
   TPropKeysToOmit extends KeysToWard<T> = Ward.DefaultHiddenKeysOf<T>,
-  TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>
+  TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>,
+  TChildWards extends ChildrenToWard<T, TPropKeysToOmit> = Ward.DefaultWardedChildrenOf<T>
 >(
   target: T,
   options: RequireAtLeastOne<{
     readonly hiddenKeys: ReadonlyArray<TPropKeysToOmit>,
-    readonly protectedKeys: ReadonlyArray<TPropKeysToProtect>
+    readonly protectedKeys: ReadonlyArray<TPropKeysToProtect>,
+    readonly wardedChildren: Readonly<TChildWards>
   }>
-): Ward<T, TPropKeysToOmit, TPropKeysToProtect>;
+): Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>;
 
 function ward<
   T extends object,
   TPropKeysToOmit extends KeysToWard<T> = Ward.DefaultHiddenKeysOf<T>,
-  TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>
+  TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>,
+  TChildWards extends ChildrenToWard<T, TPropKeysToOmit> = Ward.DefaultWardedChildrenOf<T>
 >(
   target: T,
-  ...wards: readonly [hiddenKeys?: ReadonlyArray<TPropKeysToOmit>, protectedKeys?: ReadonlyArray<TPropKeysToProtect>]
-    | readonly [{ readonly hiddenKeys?: ReadonlyArray<TPropKeysToOmit>, readonly protectedKeys?: ReadonlyArray<TPropKeysToProtect> }]
-): Ward<T, TPropKeysToOmit, TPropKeysToProtect> {
+  ...wards: readonly [
+    hiddenKeys?: ReadonlyArray<TPropKeysToOmit>,
+    protectedKeys?: ReadonlyArray<TPropKeysToProtect>,
+    wardedChildren?: Readonly<TChildWards>
+  ] | readonly [{
+    readonly hiddenKeys?: ReadonlyArray<TPropKeysToOmit>,
+    readonly protectedKeys?: ReadonlyArray<TPropKeysToProtect>,
+    readonly wardedChildren?: Readonly<TChildWards>
+  }]
+): Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards> {
   let hiddenKeys: ReadonlyArray<TPropKeysToOmit> | undefined;
   let protectedKeys: ReadonlyArray<TPropKeysToProtect> | undefined;
+  let wardedChildren: Readonly<TChildWards> | undefined;
 
   if (wards[0]?.is(Array)) {
     hiddenKeys = wards[0] as ReadonlyArray<TPropKeysToOmit> | undefined;
     protectedKeys = wards[1] as ReadonlyArray<TPropKeysToProtect> | undefined;
+    wardedChildren = wards[2] as Readonly<TChildWards> | undefined;
   } else if (wards[0]?.isObject()) {
     hiddenKeys = wards[0].hiddenKeys as ReadonlyArray<TPropKeysToOmit> | undefined;
     protectedKeys = wards[0].protectedKeys as ReadonlyArray<TPropKeysToProtect> | undefined;
+    wardedChildren = wards[0].wardedChildren as Readonly<TChildWards> | undefined;
   }
 
   if (hasWardConfig(target)) {
@@ -106,19 +121,42 @@ function ward<
         = target.constructor[$WARD]
           ?.DEFAULT_PROTECTED_KEYS as ReadonlyArray<TPropKeysToProtect>;
     }
+
+    if (!wardedChildren) {
+      wardedChildren
+        = target.constructor[$WARD]
+          ?.DEFAULT_CHILD_WARDS as Readonly<TChildWards>;
+    }
   }
 
-  if (!hiddenKeys && !protectedKeys) {
-    return target as Ward<T, TPropKeysToOmit, TPropKeysToProtect>;
+  if (!hiddenKeys && !protectedKeys && !wardedChildren) {
+    return target as Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>;
   }
+
+  const wardedChildCache = new Map<keyof T, Ward<T[keyof T]>>();
 
   // wrap the target in a proxy that will return undefined for any property
-  const ward = new Proxy(target, {
+  const warded = new Proxy(target, {
     get: (target, prop) => {
       if (hiddenKeys?.includes(<keyof T>prop as TPropKeysToOmit)) {
         return undefined;
       } else {
-        return (<T>target)[<keyof T>prop];
+        if (wardedChildren && prop in wardedChildren) {
+          if (!wardedChildCache.has(<keyof T>prop)) {
+            const wardedChild = ward(
+              (<T>target)[<keyof T>prop],
+              wardedChildren[prop].hiddenKeys,
+              wardedChildren[prop].protectedKeys,
+              wardedChildren[prop].wardedChildren,
+            );
+
+            wardedChildCache.set(<keyof T>prop, wardedChild)
+          }
+
+          return wardedChildCache.get(<keyof T>prop);
+        } else {
+          return (<T>target)[<keyof T>prop];
+        }
       }
     },
     set: (target, prop, value) => {
@@ -130,12 +168,12 @@ function ward<
         return true;
       }
     }
-  }) as Ward<T, TPropKeysToOmit, TPropKeysToProtect>;
+  }) as Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>;
 
   // build the 'try' object/method:
   const tryer = function tryTo(
-    ...args: Parameters<Ward<T, TPropKeysToOmit, TPropKeysToProtect>["try"]>
-  ): ReturnType<Ward<T, TPropKeysToOmit, TPropKeysToProtect>["try"]> {
+    ...args: Parameters<Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>["try"]>
+  ): ReturnType<Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>["try"]> {
     if ((args[0] as Ward.Can) in Ward.Can) {
       // set:
       if ((args[0] as Ward.Can) & Ward.Can.Set) {
@@ -150,7 +188,7 @@ function ward<
             result.success = false;
             result.value = undefined;
 
-            return result as ReturnType<Ward<T, TPropKeysToOmit, TPropKeysToProtect>["try"]>;
+            return result as ReturnType<Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>["try"]>;
           } else {
             // set
             target[args[1] as keyof T] = args[2] as T[keyof T];
@@ -161,7 +199,7 @@ function ward<
             result.success = true;
             result.value = result[0] as T[keyof T];
 
-            return result as ReturnType<Ward<T, TPropKeysToOmit, TPropKeysToProtect>["try"]>;
+            return result as ReturnType<Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>["try"]>;
           }
         } else {
           if (protectedKeys?.includes(args[1] as TPropKeysToProtect)
@@ -174,7 +212,7 @@ function ward<
             result.success = false;
             result.value = undefined;
 
-            return result as ReturnType<Ward<T, TPropKeysToOmit, TPropKeysToProtect>["try"]>;
+            return result as ReturnType<Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>["try"]>;
           } else {
             // result (success; no-set)
             const result: Ward.TryResult<T> = [target[args[1] as keyof T], true] as Ward.TryResult<T, 'canSet'>;
@@ -182,7 +220,7 @@ function ward<
             result.success = true;
             result.value = result[0] as T[keyof T];
 
-            return result as ReturnType<Ward<T, TPropKeysToOmit, TPropKeysToProtect>["try"]>;
+            return result as ReturnType<Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>["try"]>;
           }
         }
       }
@@ -198,7 +236,7 @@ function ward<
           result.success = false;
           result.value = undefined;
 
-          return result as ReturnType<Ward<T, TPropKeysToOmit, TPropKeysToProtect>["try"]>;
+          return result as ReturnType<Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>["try"]>;
         } else {
           // result (success)
           const result: Ward.TryResult<T> = [target[args[1] as keyof T], true] as Ward.TryResult<T, 'canGet'>;
@@ -206,7 +244,7 @@ function ward<
           result.success = true;
           result.value = result[0] as T[keyof T];
 
-          return result as ReturnType<Ward<T, TPropKeysToOmit, TPropKeysToProtect>["try"]>;
+          return result as ReturnType<Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>["try"]>;
         }
       }
 
@@ -239,29 +277,29 @@ function ward<
       }
 
       const results
-        = {} as ReturnType<Ward<T, TPropKeysToOmit, TPropKeysToProtect>["try"]>;
+        = {} as ReturnType<Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>["try"]>;
 
       for (const s of toSet) {
         if (s.is(Array)) {
           if ((results as object).hasOwnProperty(s[0] as string)) {
             (results as any)[s[0] as any]
               = _mergeResults(
-                ward.try(Ward.Can.Set, s[0], s[1]),
+                warded.try(Ward.Can.Set, s[0], s[1]),
                 (results as any)[s[0] as any],
               );
           } else {
             (results as any)[s[0] as any]
-              = ward.try(Ward.Can.Set, s[0], s[1]);
+              = warded.try(Ward.Can.Set, s[0], s[1]);
           }
         } else {
           if ((results as object).hasOwnProperty(s as string)) {
             (results as any)[s as any]
               = _mergeResults(
-                ward.try(Ward.Can.Set, s),
+                warded.try(Ward.Can.Set, s),
                 (results as any)[s as any],
               );
           } else {
-            (results as any)[s] = ward.try(Ward.Can.Set, s);
+            (results as any)[s] = warded.try(Ward.Can.Set, s);
           }
         }
       }
@@ -270,11 +308,11 @@ function ward<
         if ((results as object).hasOwnProperty(g as string)) {
           (results as any)[g as any]
             = _mergeResults(
-              ward.try(Ward.Can.Get, g),
+              warded.try(Ward.Can.Get, g),
               (results as any)[g as any],
             );
         } else {
-          (results as any)[g] = ward.try(Ward.Can.Get, g);
+          (results as any)[g] = warded.try(Ward.Can.Get, g);
         }
       }
 
@@ -286,7 +324,7 @@ function ward<
 
   // general try function
   let proxy: typeof tryer;
-  Object.defineProperty(ward, "try", {
+  Object.defineProperty(warded, "try", {
     get() {
       if (!proxy) {
         _initTryProxy();
@@ -310,7 +348,7 @@ function ward<
     enumerable: false,
     configurable: false
   });
-  Object.defineProperty(ward, $WARD, {
+  Object.defineProperty(warded, $WARD, {
     get() {
       return $ward;
     },
@@ -318,7 +356,7 @@ function ward<
     configurable: false
   });
 
-  return ward;
+  return warded;
 
   function _initTryProxy() {
     proxy = new Proxy(tryer, {
@@ -416,34 +454,39 @@ ward.isNot
 function WardConstructor<
   T extends object,
   TPropKeysToOmit extends KeysToWard<T> = Ward.DefaultHiddenKeysOf<T>,
-  TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>
+  TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>,
+  TChildWards extends ChildrenToWard<T, TPropKeysToOmit> = Ward.DefaultWardedChildrenOf<T>
 >(
-  this: Ward<T, TPropKeysToOmit, TPropKeysToProtect>,
+  this: Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>,
   target: T,
   ...wards: readonly [
     hiddenKeys?: ReadonlyArray<TPropKeysToOmit>,
-    protectedKeys?: ReadonlyArray<TPropKeysToProtect>
+    protectedKeys?: ReadonlyArray<TPropKeysToProtect>,
+    childWards?: ReadonlyArray<TChildWards>
   ] | readonly [RequireAtLeastOne<{
     readonly hiddenKeys: ReadonlyArray<TPropKeysToOmit>,
     readonly protectedKeys: ReadonlyArray<TPropKeysToProtect>
+    readonly childWards: ReadonlyArray<TChildWards>
   }>?]
-): Ward<T, TPropKeysToOmit, TPropKeysToProtect> {
+): Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards> {
   if (!wards[0]?.is(Array) || !wards[1]?.is(Array)) {
-    return ward<T, TPropKeysToOmit, TPropKeysToProtect>(
+    return ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>(
       target,
       wards[0] as ReadonlyArray<TPropKeysToOmit> | undefined,
-      wards[1]
+      wards[1],
+      wards[2] as TChildWards | undefined
     )
   } else if (wards[0]?.isObject()) {
-    return ward<T, TPropKeysToOmit, TPropKeysToProtect>(
+    return ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>(
       target,
       wards[0] as RequireAtLeastOne<{
         readonly hiddenKeys: ReadonlyArray<TPropKeysToOmit>,
-        readonly protectedKeys: ReadonlyArray<TPropKeysToProtect>
+        readonly protectedKeys: ReadonlyArray<TPropKeysToProtect>,
+        readonly wardedChildren: Readonly<TChildWards>
       }>
     )
   } else {
-    return ward<T, TPropKeysToOmit, TPropKeysToProtect>(target);
+    return ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>(target);
   }
 }
 
@@ -568,10 +611,20 @@ type Ward<
   T extends object,
   TPropKeysToOmit extends KeysToWard<T> = Ward.DefaultHiddenKeysOf<T>,
   TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>,
+  TChildWards extends ChildrenToWard<T, TPropKeysToOmit> = Ward.DefaultWardedChildrenOf<T>
 >
   = (TPropKeysToOmit extends keyof T
     ? Omit<Ward.ProtectedPropertiesOf<T, TPropKeysToProtect>, TPropKeysToOmit>
     : Ward.ProtectedPropertiesOf<T, TPropKeysToProtect>)
+  & (TChildWards extends { [key in Exclude<WardableKeysOf<T>, TPropKeysToOmit>]?: Ward.Config<T[key]> }
+    ? {
+      [key in keyof TChildWards]: Ward<
+        (key extends keyof T ? T[key] extends object ? T[key] : never : never),
+        TChildWards[key]
+      >
+    }
+    : {}
+  )
   & {
 
     /**
@@ -620,12 +673,13 @@ interface WardConstructor {
   new <
     T extends object,
     TPropKeysToOmit extends KeysToWard<T> = Ward.DefaultHiddenKeysOf<T>,
-    TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>
+    TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>,
+    TChildWards extends ChildrenToWard<T, TPropKeysToOmit> = Ward.DefaultWardedChildrenOf<T>
   >(
     target: T,
     hiddenKeys?: ReadonlyArray<TPropKeysToOmit> | undefined,
     protectedKeys?: ReadonlyArray<TPropKeysToProtect>
-  ): Ward<T, TPropKeysToOmit, TPropKeysToProtect>;
+  ): Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>;
 
   /**
    * A function that can be used to construct a new ward for a target.
@@ -633,14 +687,15 @@ interface WardConstructor {
   new <
     T extends object,
     TPropKeysToOmit extends KeysToWard<T> = Ward.DefaultHiddenKeysOf<T>,
-    TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>
+    TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>,
+    TChildWards extends ChildrenToWard<T, TPropKeysToOmit> = Ward.DefaultWardedChildrenOf<T>
   >(
     target: T,
     options: RequireAtLeastOne<{
       readonly hiddenKeys: ReadonlyArray<TPropKeysToOmit>,
       readonly protectedKeys: ReadonlyArray<TPropKeysToProtect>
     }>
-  ): Ward<T, TPropKeysToOmit, TPropKeysToProtect>;
+  ): Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>;
 
   /**
    * A function that can be used to create a new ward from a target.
@@ -648,12 +703,13 @@ interface WardConstructor {
   <
     T extends object,
     TPropKeysToOmit extends KeysToWard<T> = Ward.DefaultHiddenKeysOf<T>,
-    TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>
+    TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>,
+    TChildWards extends ChildrenToWard<T, TPropKeysToOmit> = Ward.DefaultWardedChildrenOf<T>
   >(
     target: T,
     hiddenKeys?: ReadonlyArray<TPropKeysToOmit> | undefined,
     protectedKeys?: ReadonlyArray<TPropKeysToProtect>
-  ): Ward<T, TPropKeysToOmit, TPropKeysToProtect>;
+  ): Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>;
 
   /**
    * A function that can be used to create a new ward from a target.
@@ -661,14 +717,15 @@ interface WardConstructor {
   <
     T extends object,
     TPropKeysToOmit extends KeysToWard<T> = Ward.DefaultHiddenKeysOf<T>,
-    TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>
+    TPropKeysToProtect extends KeysToWard<T> = Ward.DefaultProtectedKeysOf<T>,
+    TChildWards extends ChildrenToWard<T, TPropKeysToOmit> = Ward.DefaultWardedChildrenOf<T>
   >(
     target: T,
     options: RequireAtLeastOne<{
       readonly hiddenKeys: ReadonlyArray<TPropKeysToOmit>,
       readonly protectedKeys: ReadonlyArray<TPropKeysToProtect>
     }>
-  ): Ward<T, TPropKeysToOmit, TPropKeysToProtect>;
+  ): Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>;
 }
 
 // nested types
@@ -706,9 +763,7 @@ namespace Ward {
     T extends { [key in WardableKeysOf<T>]: unknown },
     TPropKeysToOmit extends KeysToWard<T> = unknown,
     TPropKeysToProtect extends KeysToWard<T> = unknown,
-    TChildWards extends {
-      [key in Exclude<WardableKeysOf<T>, TPropKeysToOmit>]?: Config<T[key]>
-    } | unknown = unknown,
+    TChildWards extends ChildrenToWard<T, TPropKeysToOmit> = unknown,
   > = RequireAtLeastOne<{
     readonly DEFAULT_HIDDEN_KEYS: ReadonlyArray<TPropKeysToOmit>;
     readonly DEFAULT_PROTECTED_KEYS: ReadonlyArray<TPropKeysToProtect>;
@@ -910,6 +965,10 @@ export type WardableKeysOf<T extends object>
 export type KeysToWard<T extends object>
   = WardableKeysOf<T> | undefined | unknown
 
+export type ChildrenToWard<T extends object, TPropKeysToOmit extends KeysToWard<T>> = {
+  [key in Exclude<WardableKeysOf<T>, TPropKeysToOmit>]?: Ward.Config<T[key]>;
+} | undefined | unknown;
+
 /** @alias {@link Ward.TryResult} */
 export type TryResult<
   T extends object,
@@ -922,9 +981,7 @@ export type WardConfig<
   T extends { [key in WardableKeysOf<T>]: any },
   TPropKeysToOmit extends KeysToWard<T> = unknown,
   TPropKeysToProtect extends KeysToWard<T> = unknown,
-  TChildWards extends {
-    [key in Exclude<WardableKeysOf<T>, TPropKeysToOmit>]?: Ward.Config<T[key]>
-  } | unknown = unknown,
+  TChildWards extends ChildrenToWard<T, TPropKeysToOmit> = unknown,
 > = Ward.Config<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>;
 
 /** @alias {@link Ward.ConfigOf} */

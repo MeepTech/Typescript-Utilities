@@ -133,7 +133,7 @@ function ward<
     return target as Ward<T, TPropKeysToOmit, TPropKeysToProtect, TChildWards>;
   }
 
-  const wardedChildCache = new Map<keyof T, Ward<T[keyof T]>>();
+  const wardedChildCache = new Map<keyof T, Ward<any>>();
 
   // wrap the target in a proxy that will return undefined for any property
   const warded = new Proxy(target, {
@@ -143,11 +143,23 @@ function ward<
       } else {
         if (wardedChildren && prop in wardedChildren) {
           if (!wardedChildCache.has(<keyof T>prop)) {
+            const targetKey = prop as keyof T;
+            const settingsKey = prop as keyof Readonly<TChildWards>;
+
+            if (!target[targetKey]?.isObject()) {
+              throw new Error(
+                `The property: '${prop.toString()}' is not an object, and thus cannot be warded!`
+              );
+            }
+
             const wardedChild = ward(
-              (<T>target)[<keyof T>prop],
-              wardedChildren[prop].hiddenKeys,
-              wardedChildren[prop].protectedKeys,
-              wardedChildren[prop].wardedChildren,
+              target[targetKey] as object,
+              (wardedChildren[settingsKey] as Ward.Config<typeof target[typeof targetKey]>)
+                .DEFAULT_HIDDEN_KEYS,
+              (wardedChildren[settingsKey] as Ward.Config<typeof target[typeof targetKey]>)
+                .DEFAULT_PROTECTED_KEYS,
+              (wardedChildren[settingsKey] as Ward.Config<typeof target[typeof targetKey]>)
+                .DEFAULT_CHILD_WARDS
             );
 
             wardedChildCache.set(<keyof T>prop, wardedChild)

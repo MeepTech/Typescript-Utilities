@@ -1,16 +1,36 @@
-import * as _ from "../comparison/is";
+import {
+  isIterable,
+  isNumber,
+  isString,
+  isSymbol,
+} from '../comparison/guards';
+import {
+  is,
+  isNonStringIterable,
+  isObject,
+} from '../comparison/guards';
 
 /**
  * A method that can signal it's outer loop should be be broken
  */
-export interface Breakable<TArgs extends any[], TResult = void, TBreakResultOverride = TResult> {
-  (...args: TArgs): TResult | Break<TBreakResultOverride> | Break;
+export interface Breakable<
+  TArgs extends any[],
+  TResult = void,
+  TBreakResultOverride = TResult
+> {
+  (...args: TArgs):
+    | TResult
+    | Break<TBreakResultOverride>
+    | Break;
 }
 
 /**
  * Can be used to for(of) any iterable
  */
-export function forEach<T>(items: Iterable<T>, doThis: (item: T) => void) {
+export function forEach<T>(
+  items: Iterable<T>,
+  doThis: (item: T) => void
+) {
   for (const item of items) {
     doThis(item);
   }
@@ -19,7 +39,10 @@ export function forEach<T>(items: Iterable<T>, doThis: (item: T) => void) {
 /**
  * Can be used to for(of) any iterable
  */
-export function forIn<T, K>(items: Iterable<T>, doThis: (key: K) => void) {
+export function forIn<T, K>(
+  items: Iterable<T>,
+  doThis: (key: K) => void
+) {
   for (const item in items) {
     doThis(item as K);
   }
@@ -28,7 +51,10 @@ export function forIn<T, K>(items: Iterable<T>, doThis: (key: K) => void) {
 /**
  * Can be used to each any iterable
  */
-export function each<T>(items: Iterable<T>, isTrue: (item: T) => boolean): boolean {
+export function each<T>(
+  items: Iterable<T>,
+  isTrue: (item: T) => boolean
+): boolean {
   for (const item of items) {
     if (!isTrue(item)) {
       return false;
@@ -41,7 +67,10 @@ export function each<T>(items: Iterable<T>, isTrue: (item: T) => boolean): boole
 /**
  * Can be used to some any iterable
  */
-export function some<T>(items: Iterable<T>, isTrue: (item: T) => boolean): boolean {
+export function some<T>(
+  items: Iterable<T>,
+  isTrue: (item: T) => boolean
+): boolean {
   for (const item of items) {
     if (!isTrue(item)) {
       return true;
@@ -54,7 +83,10 @@ export function some<T>(items: Iterable<T>, isTrue: (item: T) => boolean): boole
 /**
  * Can be used to map any iterable
  */
-export function map<T, R>(items: Iterable<T>, transform: (item: T) => R): Iterable<R> {
+export function map<T, R>(
+  items: Iterable<T>,
+  transform: (item: T) => R
+): Iterable<R> {
   const result: R[] = [];
   for (const item of items) {
     result.push(transform(item));
@@ -66,7 +98,10 @@ export function map<T, R>(items: Iterable<T>, transform: (item: T) => R): Iterab
 /**
  * Get the first item of an iterable.
  */
-export function first<T>(items: Iterable<T>, where?: (item: T) => boolean): T | undefined {
+export function first<T>(
+  items: Iterable<T>,
+  where?: (item: T) => boolean
+): T | undefined {
   for (const item of items) {
     if (where?.(item) ?? true) {
       return item;
@@ -84,7 +119,9 @@ export function count(items: Set<any>): number;
 /**
  * Returns the size of the given map
  */
-export function count(items: Map<any, any>): number;
+export function count(
+  items: Map<any, any>
+): number;
 
 /**
  * Returns the length of the given array
@@ -94,7 +131,9 @@ export function count(items: Array<any>): number;
 /**
  * Returns the number of values (size/length/count) of the given set of items.
  */
-export function count(items: Iterable<any>): number;
+export function count(
+  items: Iterable<any>
+): number;
 
 /**
  * Returns the number of enumerable properties in the object
@@ -116,16 +155,27 @@ export function count(items: number): number;
  */
 export function count(items: symbol): 1;
 
-export function count(items: Iterable<any> | object | string | number | symbol): number {
-  if (items.is(Array)) {
+export function count(
+  items:
+    | Iterable<any>
+    | object
+    | string
+    | number
+    | symbol
+): number {
+  if (is(items, Array)) {
     return items.length;
-  } else if (items instanceof Set || items instanceof Map) {
+  } else if (
+    items instanceof Set ||
+    items instanceof Map
+  ) {
     return items.size;
-  } else if (items.isNonStringIterable()) {
-    const potentialCount = (items as any).length
-      ?? (items as any).size
-      ?? (items as any).count
-      ?? (items as any).number;
+  } else if (isNonStringIterable(items)) {
+    const potentialCount =
+      (items as any).length ??
+      (items as any).size ??
+      (items as any).count ??
+      (items as any).number;
 
     if (potentialCount === undefined) {
       return [...items].length;
@@ -135,94 +185,159 @@ export function count(items: Iterable<any> | object | string | number | symbol):
       } else if (potentialCount.is(Function)) {
         return potentialCount();
       } else {
-        throw new Error("Could not determine count of items");
+        throw new Error(
+          'Could not determine count of items'
+        );
       }
     }
-  } else if (items.isObject()) {
+  } else if (isObject(items)) {
     return Object.keys(items).length;
-  } else if (items.is(String)) {
+  } else if (isString(items)) {
     return (items as string).length;
-  } else if (items.is(Number)) {
+  } else if (isNumber(items)) {
     return items as number;
-  } else if (items.isSymbol()) {
+  } else if (isSymbol(items)) {
     return 1;
   } else {
-    throw new Error("Could not determine count of items");
+    throw new Error(
+      'Could not determine count of items'
+    );
   }
 }
 
 /**
  * Used to help loop over breakables easily.
- * 
+ *
  * @param toLoop The breakable to loop
  * @param over The number of loops or entries to itterate over per loop
  * @param options Options.
  */
-export function through<TResult = void, TRestOfArgs extends any[] = [], TBreakResultOverride = TResult>(
-  toLoop: Breakable<[number, ...TRestOfArgs], TResult, TBreakResultOverride>,
+export function through<
+  TResult = void,
+  TRestOfArgs extends any[] = [],
+  TBreakResultOverride = TResult
+>(
+  toLoop: Breakable<
+    [number, ...TRestOfArgs],
+    TResult,
+    TBreakResultOverride
+  >,
   over: number,
   options?: {
-    args?: any[][],
-    onBreak?: (result: Break<TBreakResultOverride> | Break, ...args: [number, ...TRestOfArgs]) => void,
-    onResult?: (result: TResult, loopHasBroken: boolean) => void
+    args?: any[][];
+    onBreak?: (
+      result: Break<TBreakResultOverride> | Break,
+      ...args: [number, ...TRestOfArgs]
+    ) => void;
+    onResult?: (
+      result: TResult,
+      loopHasBroken: boolean
+    ) => void;
   }
 ): void;
 
 /**
  * Used to help loop over breakables easily.
- * 
+ *
  * @param toLoop The breakable to loop
  * @param over The number of loops or entries to itterate over per loop
  * @param options Options.
  */
-export function through<TEntry, TResult = void, TBreakResultOverride = TResult>(
-  toLoop: Breakable<[TEntry, ...any[]], TResult, TBreakResultOverride>,
+export function through<
+  TEntry,
+  TResult = void,
+  TBreakResultOverride = TResult
+>(
+  toLoop: Breakable<
+    [TEntry, ...any[]],
+    TResult,
+    TBreakResultOverride
+  >,
   over: Iterable<TEntry>,
   options?: {
-    args?: any[],
-    onBreak?: (result: Break<TBreakResultOverride> | Break, ...args: [TEntry, ...any[]]) => void;
-    onResult?: (result: TResult, loopHasBroken: boolean) => void
+    args?: any[];
+    onBreak?: (
+      result: Break<TBreakResultOverride> | Break,
+      ...args: [TEntry, ...any[]]
+    ) => void;
+    onResult?: (
+      result: TResult,
+      loopHasBroken: boolean
+    ) => void;
   }
 ): void;
 
 /**
  * Used to help loop over breakables easily.
- * 
+ *
  * @param toLoop The breakable to loop
  * @param over The number of loops or entries to itterate over per loop
  * @param options Options.
  */
-export function through<TEntry, TResult = void, TArgs extends [TEntry, ...any] = [TEntry, ...any], TBreakResultOverride = TResult>(
-  toLoop: Breakable<TArgs, TResult, TBreakResultOverride>,
+export function through<
+  TEntry,
+  TResult = void,
+  TArgs extends [TEntry, ...any] = [
+    TEntry,
+    ...any
+  ],
+  TBreakResultOverride = TResult
+>(
+  toLoop: Breakable<
+    TArgs,
+    TResult,
+    TBreakResultOverride
+  >,
   over: Iterable<TEntry> | number,
   options?: {
-    args?: Partial<TArgs>[],
-    onBreak?: (result: Break<TBreakResultOverride> | Break, ...args: TArgs) => void
-    onResult?: (result: TResult, loopHasBroken: boolean) => void
+    args?: Partial<TArgs>[];
+    onBreak?: (
+      result: Break<TBreakResultOverride> | Break,
+      ...args: TArgs
+    ) => void;
+    onResult?: (
+      result: TResult,
+      loopHasBroken: boolean
+    ) => void;
   }
-): void
+): void;
 
 /**
  * Used to help loop over breakables easily.
- * 
+ *
  * @param toLoop The breakable to loop
  * @param over The number of loops or entries to itterate over per loop
  * @param options Options.
  */
-export function through<TEntry, TResult = void, TArgs extends any[] = [TEntry, number, ...any], TBreakResultOverride = TResult>(
-  toLoop: Breakable<TArgs, TResult, TBreakResultOverride>,
+export function through<
+  TEntry,
+  TResult = void,
+  TArgs extends any[] = [TEntry, number, ...any],
+  TBreakResultOverride = TResult
+>(
+  toLoop: Breakable<
+    TArgs,
+    TResult,
+    TBreakResultOverride
+  >,
   over: Iterable<TEntry> | number,
   options?: {
-    args?: Partial<TArgs>[],
-    onBreak?: (result: Break<TBreakResultOverride> | Break, ...args: TArgs) => void
-    onResult?: (result: TResult, loopHasBroken: boolean) => void
+    args?: Partial<TArgs>[];
+    onBreak?: (
+      result: Break<TBreakResultOverride> | Break,
+      ...args: TArgs
+    ) => void;
+    onResult?: (
+      result: TResult,
+      loopHasBroken: boolean
+    ) => void;
   }
 ): void {
   if (!options) {
-    if (over.isIterable()) {
+    if (isIterable(over)) {
       let index = 0;
       for (const each of over) {
-        toLoop(...[each, index++] as TArgs);
+        toLoop(...([each, index++] as TArgs));
       }
     } // over an index.
     else {
@@ -233,7 +348,7 @@ export function through<TEntry, TResult = void, TArgs extends any[] = [TEntry, n
     }
   } else {
     // setup params
-    const overIsArray = over.is(Array);
+    const overIsArray = is(over, Array);
     let overIndex = 0;
     let indexIndex = overIsArray ? 1 : 0;
     const args: ((index: number) => any)[] = [];
@@ -241,11 +356,12 @@ export function through<TEntry, TResult = void, TArgs extends any[] = [TEntry, n
     // entry
     if (overIsArray) {
       const iter = over[Symbol.iterator]();
-      args[overIndex] = () => iter.next().value as TEntry;
+      args[overIndex] = () =>
+        iter.next().value as TEntry;
     }
 
     // index
-    args[indexIndex] = (i) => i;
+    args[indexIndex] = i => i;
 
     // args
     let indexOffset = indexIndex;
@@ -256,18 +372,31 @@ export function through<TEntry, TResult = void, TArgs extends any[] = [TEntry, n
     }
 
     // loop
-    const count: number = overIsArray ? over.length : over.isIterable() ? Loop.count(over as Iterable<any>) : over as number;
+    const count: number = overIsArray
+      ? over.length
+      : isIterable(over)
+      ? Loop.count(over as Iterable<any>)
+      : (over as number);
     for (let index = 0; index < count; index++) {
       const params = args.map(get => get(index));
-      const result = toLoop(...params as TArgs);
+      const result = toLoop(...(params as TArgs));
       if (result instanceof Break) {
         if (result.hasReturn) {
-          options.onResult?.(result.return as TResult, true);
+          options.onResult?.(
+            result.return as TResult,
+            true
+          );
         } else {
-          options.onBreak?.(result, ...params as TArgs);
+          options.onBreak?.(
+            result,
+            ...(params as TArgs)
+          );
         }
       } else {
-        options.onResult?.(result as TResult, false);
+        options.onResult?.(
+          result as TResult,
+          false
+        );
       }
     }
   }
@@ -282,16 +411,29 @@ const _through = through;
 const _map = map;
 const _first = first;
 
-interface _Breakable<TArgs extends any[], TResult = void, TBreakResultOverride = TResult>
-  extends Breakable<TArgs, TResult, TBreakResultOverride> { }
+interface _Breakable<
+  TArgs extends any[],
+  TResult = void,
+  TBreakResultOverride = TResult
+> extends Breakable<
+    TArgs,
+    TResult,
+    TBreakResultOverride
+  > {}
 
 function Loop(
   toLoop: Breakable<[number, ...any[]], any, any>,
   over: number,
   options?: {
-    args?: any[][],
-    onBreak?: (result: Break<any> | Break, ...args: [number, ...any[]]) => void,
-    onResult?: (result: any, loopHasBroken: boolean) => void
+    args?: any[][];
+    onBreak?: (
+      result: Break<any> | Break,
+      ...args: [number, ...any[]]
+    ) => void;
+    onResult?: (
+      result: any,
+      loopHasBroken: boolean
+    ) => void;
   }
 ) {
   through(toLoop, over, options);
@@ -320,13 +462,20 @@ namespace Loop {
     }
   }
 
-  export interface Breakable<TArgs extends any[], TResult = void, TBreakResultOverride = TResult>
-    extends _Breakable<TArgs, TResult, TBreakResultOverride> { }
+  export interface Breakable<
+    TArgs extends any[],
+    TResult = void,
+    TBreakResultOverride = TResult
+  > extends _Breakable<
+      TArgs,
+      TResult,
+      TBreakResultOverride
+    > {}
 }
 
 const Break = Loop.Break;
 type Break<TResult = void> = Loop.Break<TResult>;
 
-export { Break }
-export { Loop as loop }
+export { Break };
+export { Loop as loop };
 export default Loop;

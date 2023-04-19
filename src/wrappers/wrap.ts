@@ -1,7 +1,13 @@
+import {
+  isSymbol,
+  isObject,
+  isString,
+  isBoolean,
+  isNumber,
+} from '../comparison/guards';
 /// can be used to add wrap data around an object.
 
-export const $WRAP
-  = Symbol('$WRAP');
+export const $WRAP = Symbol('$WRAP');
 
 //#region constructor
 
@@ -9,58 +15,70 @@ export const $WRAP
  * Interface for the constructor of the Wrap class.
  */
 interface WrapConstructor {
-  new <T, TExtraData extends {
-    [key: symbol | string | number]: any;
-  }>(
+  new <
+    T,
+    TExtraData extends {
+      [key: symbol | string | number]: any;
+    }
+  >(
     value: T,
     wrapdata: TExtraData,
     proxy?: T extends NonNullable<T>
       ? ProxyHandler<T>
-      // TODO: special proxy handler for primitives:
-      : {}
+      : // TODO: special proxy handler for primitives:
+        {}
   ): Wrap<T, TExtraData>;
 }
 
-function WrapConstructor<T, TExtraData extends {
-  [key: symbol | string | number]: any;
-}>(
+function WrapConstructor<
+  T,
+  TExtraData extends {
+    [key: symbol | string | number]: any;
+  }
+>(
   this: Wrap<T, TExtraData>,
   original: T,
   wrapdata: TExtraData,
   proxyHandler?: T extends NonNullable<T>
     ? ProxyHandler<T>
-    // TODO: special proxy handler for primitives:
-    : ProxyHandler<
-      T extends string ? String
-      : T extends number ? Number
-      | T extends symbol ? Symbol
-      | T extends boolean ? Boolean
-      | T extends null ? never
-      | T extends undefined ? never
-      : never : never : never : never : never
-    >,
+    : // TODO: special proxy handler for primitives:
+      ProxyHandler<
+        T extends string
+          ? String
+          : T extends number
+          ? Number | T extends symbol
+            ? Symbol | T extends boolean
+              ? Boolean | T extends null
+                ? never | T extends undefined
+                  ? never
+                  : never
+                : never
+              : never
+            : never
+          : never
+      >
 ) {
   let base: object;
 
   // wrapping objects is easy:
-  if (original?.isObject()) {
+  if (isObject(original)) {
     base = original;
   } // special wrapper for primitives:
   else {
     // - string
-    if (original?.is(String)) {
+    if (isString(original)) {
       base = new String(original);
     }
     // - number
-    else if (original?.is(Number)) {
+    else if (isNumber(original)) {
       base = new Number(original);
     }
     // - boolean
-    else if (original?.is(Boolean)) {
+    else if (isBoolean(original)) {
       base = new Boolean(original);
     }
     // - symbol
-    else if (original?.isSymbol()) {
+    else if (isSymbol(original)) {
       base = original as Symbol;
     }
 
@@ -76,7 +94,10 @@ function WrapConstructor<T, TExtraData extends {
 
   // wrap the object:
   return Object.assign(
-    new Proxy(base, (proxyHandler ?? {}) as ProxyHandler<object>),
+    new Proxy(
+      base,
+      (proxyHandler ?? {}) as ProxyHandler<object>
+    ),
     wrapdata,
     {
       [$WRAP]: wrapdata,
@@ -84,8 +105,8 @@ function WrapConstructor<T, TExtraData extends {
   ) as Wrap<T, TExtraData>;
 }
 
-const Wrap: WrapConstructor
-  = WrapConstructor as unknown as WrapConstructor;
+const Wrap: WrapConstructor =
+  WrapConstructor as unknown as WrapConstructor;
 
 //#region
 
@@ -94,60 +115,70 @@ const Wrap: WrapConstructor
 /**
  * Used to wrap an object with wrapdata.
  */
-type Wrap<T, TWrap extends {
-  [key: symbol | string | number]: any;
-}>
-  = T
-  & TWrap
-  & {
+type Wrap<
+  T,
+  TWrap extends {
+    [key: symbol | string | number]: any;
+  }
+> = T &
+  TWrap & {
     [$WRAP]: TWrap & {
       isWrapped: true;
-    }
+    };
   };
 
 //#endregion
 
 //#region functional builder
 
-function wrap<T, TExtraData extends {
-  [key: symbol | string | number]: any;
-}>(
+function wrap<
+  T,
+  TExtraData extends {
+    [key: symbol | string | number]: any;
+  }
+>(
   original: T,
   wrapdata: TExtraData,
   proxyHandler?: T extends NonNullable<T>
     ? ProxyHandler<T>
-    // TODO: special proxy handler for primitives:
-    : ProxyHandler<
-      T extends string ? String
-      : T extends number ? Number
-      | T extends symbol ? Symbol
-      | T extends boolean ? Boolean
-      | T extends null ? never
-      | T extends undefined ? never
-      : never : never : never : never : never
-    >,
+    : // TODO: special proxy handler for primitives:
+      ProxyHandler<
+        T extends string
+          ? String
+          : T extends number
+          ? Number | T extends symbol
+            ? Symbol | T extends boolean
+              ? Boolean | T extends null
+                ? never | T extends undefined
+                  ? never
+                  : never
+                : never
+              : never
+            : never
+          : never
+      >
 ): Wrap<T, TExtraData> {
   let base: object;
 
   // wrapping objects is easy:
-  if (original?.isObject()) {
+  if (isObject(original)) {
     base = original;
   } // special wrapper for primitives:
   else {
     // - string
-    if (original?.is(String)) {
+    if (isString(original)) {
       base = new String(original);
     }
     // - number
-    else if (original?.is(Number)) {
+    else if (isNumber(original)) {
       base = new Number(original);
     }
     // - boolean
-    else if (original?.is(Boolean)) {
+    else if (isBoolean(original)) {
       base = new Boolean(original);
     }
     // - symbol
-    else if (original?.isSymbol()) {
+    else if (isSymbol(original)) {
       base = original as Symbol;
     }
 
@@ -163,7 +194,10 @@ function wrap<T, TExtraData extends {
 
   // wrap the object:
   return Object.assign(
-    new Proxy(base, (proxyHandler ?? {}) as ProxyHandler<object>),
+    new Proxy(
+      base,
+      (proxyHandler ?? {}) as ProxyHandler<object>
+    ),
     wrapdata,
     {
       [$WRAP]: wrapdata,

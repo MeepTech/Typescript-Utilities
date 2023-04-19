@@ -1,8 +1,0 @@
-{
-  "extends": "./tsconfig.shared.json",
-  "compilerOptions": {
-    "sourceMap": false,
-    "inlineSourceMap": true,
-    "outDir": "./build/dev/"
-  }
-}

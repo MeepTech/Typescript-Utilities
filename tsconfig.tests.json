@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "./src/lib.ts",
+    "./src/globals.ts",
+    "./tests/**/*.mock.ts"
+  ],
+  "compilerOptions": {
+    "emitDeclarationOnly": false,
+    "declaration": false,
+    "noEmit": true,
+    "skipLibCheck": true,
+  }
+}

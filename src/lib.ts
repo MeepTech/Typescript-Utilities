@@ -1,27 +1,26 @@
+import { hasProp } from './comparison/guards';
 //#region TS
 
 // ts type helpers
-export {
+export type {
   Class,
   Constructor,
   Constructable,
   SpreadConstructable,
   HybridConstructable,
-} from "./types/ctor";
-export {
+} from './types/ctor';
+export type {
   First,
   Last,
   Require,
   MapTuple,
-  Protect
-} from "./types/mod";
-export {
-  IsUnion
-} from "./types/is";
-export {
+  Protect,
+} from './types/mod';
+export type { IsUnion } from './types/is';
+export type {
   RequireAtLeastOne,
-  RequireOnlyOne
-} from "./types/or";
+  RequireOnlyOne,
+} from './types/or';
 
 //#endregion
 
@@ -29,9 +28,7 @@ export {
 
 // comparisons
 export {
-  hasStaticIs,
-} from "./comparison/is";
-export {
+  default as Check,
   default as If,
   isObject,
   isSymbol,
@@ -43,12 +40,16 @@ export {
   isFunction,
   isArray,
   isEmptyObject,
-} from "./comparison/guards";
+  isRecord,
+  hasProp
+} from './comparison/guards';
 
 // decorators
-export { enumerable, skipped } from "./decorators/enum";
-export { implementsStatic } from "./decorators/static";
-export { lazy } from "./decorators/lazy";
+export {
+  enumerable,
+  skipped,
+} from './decorators/enum';
+export { lazy } from './decorators/lazy';
 
 // iterable/loop helpers
 export {
@@ -61,7 +62,7 @@ export {
   each,
   some,
   first,
-} from "./helpers/loop";
+} from './helpers/loop';
 
 // wrappers
 // - wrap
@@ -69,7 +70,7 @@ export {
   default as Wrap,
   wrap,
   $WRAP,
-} from "./wrappers/wrap";
+} from './wrappers/wrap';
 
 // - ward
 export {
@@ -79,30 +80,30 @@ export {
   implementsWardConfig,
   isWard,
   isWarded,
-  isNotWarded
-} from "./wrappers/ward";
+  isNotWarded,
+} from './wrappers/ward';
 
 // - mod
 export {
   default as Mod,
   mod,
-  $MOD
-} from "./wrappers/mod";
+  $MOD,
+} from './wrappers/mod';
 
 // - hook
 export {
   default as Hook,
   hook,
   $HOOK,
-  isHook
-} from "./wrappers/hook";
+  isHook,
+} from './wrappers/hook';
 
 // - bevel
 export {
   default as Bevel,
   bevel,
   $BEVEL,
-  isBevel
-} from "./wrappers/bevel";
+  isBevel,
+} from './wrappers/bevel';
 
 //#endregion

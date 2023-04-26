@@ -1,4 +1,4 @@
-import { hasProp } from './comparison/guards';
+import { hasProp, isPlainObject } from './comparison/guards';
 //#region TS
 
 // ts type helpers
@@ -34,6 +34,7 @@ export {
   isSymbol,
   isIterable,
   isNonStringIterable,
+  isPlainObject,
   isString,
   isNumber,
   isBoolean,

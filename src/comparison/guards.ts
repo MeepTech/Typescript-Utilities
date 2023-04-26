@@ -63,7 +63,7 @@ namespace Check {
   export const isFunction: TypeGuard<
     Function | ((...args: any[]) => any)
   > = (value: unknown): value is Function =>
-    typeof value === 'function';
+      typeof value === 'function';
 
   /**
    * Helper to check if something's a boolean.
@@ -75,7 +75,7 @@ namespace Check {
   > = (
     value: unknown
   ): value is boolean | Boolean =>
-    typeof value === 'boolean';
+      typeof value === 'boolean';
 
   /**
    * Helper to check if somethings a non-null object (as opposed to a primitive).
@@ -90,15 +90,33 @@ namespace Check {
    * @param value The value to check
    */
   export const isObject: TypeGuard<
-    object | Record<any, any>
+    NonNullable<object> | Record<any, any>
   > = (
     value: unknown
   ): value is Record<
     string | number | symbol,
     unknown
   > &
-    object =>
-    typeof value === 'object' && value !== null;
+  object =>
+      typeof value === 'object' && value !== null;
+
+  /**
+   * Check if an object is a plain object (not an instance of a class, or an array, or a function, etc)
+   */
+  export const isPlainObject: TypeGuard<
+    Record<any, any> & { constructor: Object }
+  > = (
+    value: unknown
+  ): value is Record<any, any> & {
+    constructor: Object
+  } => {
+      if (!isObject(value)) {
+        return false;
+      }
+
+      return value?.constructor === Object;
+    };
+
 
   /**
    * Check if an object has a property with the given key
@@ -130,7 +148,7 @@ namespace Check {
   }> = (
     value: unknown
   ): value is Record<any, any> =>
-    typeof value === 'object' && value !== null;
+      typeof value === 'object' && value !== null;
 
   /**
    * Check if an item specifically matches "{}"
@@ -152,7 +170,7 @@ namespace Check {
   export const isNumber: TypeGuard<
     number | Number
   > = (value: unknown): value is number =>
-    typeof value === 'number';
+      typeof value === 'number';
 
   /**
    * Helper to check if something is a string.
@@ -177,8 +195,8 @@ namespace Check {
       entryGuard?: (item: any) => item is T;
       allowEmpty?: boolean;
     } = {
-      allowEmpty: true,
-    }
+        allowEmpty: true,
+      }
   ): value is Array<T> =>
     Array.isArray(value) &&
     (value.length
@@ -194,13 +212,13 @@ namespace Check {
   ): value is Exclude<Iterable<any>, string> =>
     !entryGuard
       ? Symbol.iterator in Object(value) &&
-        !isString(value)
+      !isString(value)
       : Symbol.iterator in Object(value) &&
-        !isString(value) &&
-        Loop.each(
-          value as Iterable<any>,
-          entryGuard
-        );
+      !isString(value) &&
+      Loop.each(
+        value as Iterable<any>,
+        entryGuard
+      );
 
   /**
    * Check if something is an itterable.
@@ -212,10 +230,10 @@ namespace Check {
     !entryGuard
       ? Symbol.iterator in Object(value)
       : Symbol.iterator in Object(value) &&
-        Loop.each(
-          value as Iterable<any>,
-          entryGuard
-        );
+      Loop.each(
+        value as Iterable<any>,
+        entryGuard
+      );
 }
 
 /** @alias {@link Check.is} */
@@ -243,6 +261,8 @@ export const isIterable = Check.isIterable;
 /** @alias {@link Check.isNonStringIterable} */
 export const isNonStringIterable =
   Check.isNonStringIterable;
+/** @alias {@link Check.isPlainObject} */
+export const isPlainObject = Check.isPlainObject;
 /** @alias {@link Check.hasProp} */
 export const hasProp = Check.hasProp;
 

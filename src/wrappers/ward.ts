@@ -107,17 +107,17 @@ function ward<
   target: T,
   ...wards:
     | readonly [
-        hiddenKeys?: ReadonlyArray<TPropKeysToOmit>,
-        protectedKeys?: ReadonlyArray<TPropKeysToProtect>,
-        wardedChildren?: Readonly<TChildWards>
-      ]
+      hiddenKeys?: ReadonlyArray<TPropKeysToOmit>,
+      protectedKeys?: ReadonlyArray<TPropKeysToProtect>,
+      wardedChildren?: Readonly<TChildWards>
+    ]
     | readonly [
-        {
-          readonly hiddenKeys?: ReadonlyArray<TPropKeysToOmit>;
-          readonly protectedKeys?: ReadonlyArray<TPropKeysToProtect>;
-          readonly wardedChildren?: Readonly<TChildWards>;
-        }
-      ]
+      {
+        readonly hiddenKeys?: ReadonlyArray<TPropKeysToOmit>;
+        readonly protectedKeys?: ReadonlyArray<TPropKeysToProtect>;
+        readonly wardedChildren?: Readonly<TChildWards>;
+      }
+    ]
 ): Ward<
   T,
   TPropKeysToOmit,
@@ -224,21 +224,21 @@ function ward<
               target[targetKey] as object,
               (
                 wardedChildren[
-                  settingsKey
+                settingsKey
                 ] as Ward.Config<
                   (typeof target)[typeof targetKey]
                 >
               ).DEFAULT_HIDDEN_KEYS,
               (
                 wardedChildren[
-                  settingsKey
+                settingsKey
                 ] as Ward.Config<
                   (typeof target)[typeof targetKey]
                 >
               ).DEFAULT_PROTECTED_KEYS,
               (
                 wardedChildren[
-                  settingsKey
+                settingsKey
                 ] as Ward.Config<
                   (typeof target)[typeof targetKey]
                 >
@@ -457,8 +457,8 @@ function ward<
 
       throw new Error(
         'Invalid ward.try operation: ' +
-          args[0] +
-          "'"
+        args[0] +
+        "'"
       );
     } else if (isObject(args[0])) {
       const toSet = [] as (
@@ -471,20 +471,20 @@ function ward<
         if (isNonStringIterable(args[0].set)) {
           for (const prop of args[0]
             .set as Iterable<
-            | KeyofTExceptCtor<T>
-            | {
+              | KeyofTExceptCtor<T>
+              | {
                 [key in KeyofTExceptCtor<T>]: T[key];
               }
-          >) {
+            >) {
             if (isObject(prop)) {
               for (const key in prop) {
                 toSet.push([
                   key,
                   prop[
-                    key as Exclude<
-                      keyof T,
-                      'constructor'
-                    >
+                  key as Exclude<
+                    keyof T,
+                    'constructor'
+                  >
                   ],
                 ] as [keyof T, any]);
               }
@@ -503,10 +503,10 @@ function ward<
                   [key in KeyofTExceptCtor<T>]: T[key];
                 }
               )[
-                key as Exclude<
-                  keyof T,
-                  'constructor'
-                >
+              key as Exclude<
+                keyof T,
+                'constructor'
+              >
               ],
             ] as [keyof T, any]);
           }
@@ -598,8 +598,8 @@ function ward<
     } else {
       throw new Error(
         'Invalid ward.try arguments: ' +
-          args +
-          "'"
+        args +
+        "'"
       );
     }
   };
@@ -684,12 +684,12 @@ function ward<
         (results[0] as { canGet?: boolean })
           .canGet === undefined
           ? (results[1] as { canGet?: boolean })
-              .canGet
+            .canGet
           : (results[0] as { canGet?: boolean })
-              .canGet &&
-            ((results[1] as { canGet?: boolean })
-              .canGet ??
-              true);
+            .canGet &&
+          ((results[1] as { canGet?: boolean })
+            .canGet ??
+            true);
     }
 
     if (
@@ -700,12 +700,12 @@ function ward<
         (results[0] as { canSet?: boolean })
           .canSet === undefined
           ? (results[1] as { canSet?: boolean })
-              .canSet
+            .canSet
           : (results[0] as { canSet?: boolean })
-              .canSet &&
-            ((results[1] as { canSet?: boolean })
-              .canSet ??
-              true);
+            .canSet &&
+          ((results[1] as { canSet?: boolean })
+            .canSet ??
+            true);
     }
 
     if (
@@ -716,12 +716,12 @@ function ward<
         (results[0] as { canGet?: boolean })
           .canGet === undefined
           ? (results[1] as { canGet?: boolean })
-              .canGet
+            .canGet
           : (results[0] as { canGet?: boolean })
-              .canGet &&
-            ((results[1] as { canGet?: boolean })
-              .canGet ??
-              true);
+            .canGet &&
+          ((results[1] as { canGet?: boolean })
+            .canGet ??
+            true);
     }
 
     if (
@@ -732,12 +732,12 @@ function ward<
         (results[0] as { wasSet?: boolean })
           .wasSet === undefined
           ? (results[1] as { wasSet?: boolean })
-              .wasSet
+            .wasSet
           : (results[0] as { wasSet?: boolean })
-              .wasSet &&
-            ((results[1] as { wasSet?: boolean })
-              .wasSet ??
-              true);
+            .wasSet &&
+          ((results[1] as { wasSet?: boolean })
+            .wasSet ??
+            true);
     }
 
     return result;
@@ -783,17 +783,17 @@ function WardConstructor<
   target: T,
   ...wards:
     | readonly [
-        hiddenKeys?: ReadonlyArray<TPropKeysToOmit>,
-        protectedKeys?: ReadonlyArray<TPropKeysToProtect>,
-        childWards?: ReadonlyArray<TChildWards>
-      ]
+      hiddenKeys?: ReadonlyArray<TPropKeysToOmit>,
+      protectedKeys?: ReadonlyArray<TPropKeysToProtect>,
+      childWards?: ReadonlyArray<TChildWards>
+    ]
     | readonly [
-        RequireAtLeastOne<{
-          readonly hiddenKeys: ReadonlyArray<TPropKeysToOmit>;
-          readonly protectedKeys: ReadonlyArray<TPropKeysToProtect>;
-          readonly childWards: ReadonlyArray<TChildWards>;
-        }>?
-      ]
+      RequireAtLeastOne<{
+        readonly hiddenKeys: ReadonlyArray<TPropKeysToOmit>;
+        readonly protectedKeys: ReadonlyArray<TPropKeysToProtect>;
+        readonly childWards: ReadonlyArray<TChildWards>;
+      }>?
+    ]
 ): Ward<
   T,
   TPropKeysToOmit,
@@ -809,8 +809,8 @@ function WardConstructor<
     >(
       target,
       wards[0] as
-        | ReadonlyArray<TPropKeysToOmit>
-        | undefined,
+      | ReadonlyArray<TPropKeysToOmit>
+      | undefined,
       wards[1],
       wards[2] as TChildWards | undefined
     );
@@ -918,50 +918,50 @@ export function isWarded<
 export function isNotWarded<
   T extends object,
   TUnhiddenPropKeys extends
-    | keyof T
-    | undefined = undefined,
+  | keyof T
+  | undefined = undefined,
   TUnprotectedPropKeys extends
-    | keyof T
-    | undefined = undefined
+  | keyof T
+  | undefined = undefined
 >(
   value: unknown,
   withUnHiddenKeys?: ReadonlyArray<TUnhiddenPropKeys>,
   withUnProtectedKeys?: ReadonlyArray<TUnprotectedPropKeys>
 ): value is TUnhiddenPropKeys extends keyof T
-  ? TUnprotectedPropKeys extends keyof T
-    ? Pick<
-        T,
-        TUnhiddenPropKeys | TUnprotectedPropKeys
-      >
-    : Pick<T, TUnhiddenPropKeys>
-  : T {
+? TUnprotectedPropKeys extends keyof T
+? Pick<
+  T,
+  TUnhiddenPropKeys | TUnprotectedPropKeys
+>
+: Pick<T, TUnhiddenPropKeys>
+: T {
   return (
     !isWard<T>(value) ||
     ((value[$WARD].config.DEFAULT_HIDDEN_KEYS
       ?.length
       ? !(
-          withUnHiddenKeys?.some(
-            k =>
-              value[
-                $WARD
-              ].config.DEFAULT_HIDDEN_KEYS!.includes(
-                k
-              ) ?? false
-          ) ?? true
-        )
+        withUnHiddenKeys?.some(
+          k =>
+            value[
+              $WARD
+            ].config.DEFAULT_HIDDEN_KEYS!.includes(
+              k
+            ) ?? false
+        ) ?? true
+      )
       : true) &&
       (value[$WARD].config.DEFAULT_HIDDEN_KEYS
         ?.length
         ? !(
-            withUnProtectedKeys?.some(
-              k =>
-                value[
-                  $WARD
-                ].config.DEFAULT_PROTECTED_KEYS!.includes(
-                  k
-                ) ?? false
-            ) ?? true
-          )
+          withUnProtectedKeys?.some(
+            k =>
+              value[
+                $WARD
+              ].config.DEFAULT_PROTECTED_KEYS!.includes(
+                k
+              ) ?? false
+          ) ?? true
+        )
         : true))
   );
 }
@@ -994,40 +994,38 @@ type Ward<
     T,
     TPropKeysToOmit
   > = Ward.DefaultWardedChildrenOf<T>
-> = (TPropKeysToOmit extends keyof T
-  ? Omit<
-      Ward.ProtectedPropertiesOf<
-        T,
-        TPropKeysToProtect
-      >,
-      TPropKeysToOmit
-    >
-  : Ward.ProtectedPropertiesOf<
-      T,
-      TPropKeysToProtect
-    >) &
-  (TChildWards extends {
-    [key in Exclude<
-      WardableKeysOf<T>,
-      TPropKeysToOmit
-    >]?: Ward.Config<T[key]>;
-  }
+>
+  // protected properties 
+  = { readonly [key in TPropKeysToProtect extends keyof T ? TPropKeysToProtect : never]: T[key] }
+  // untouched properties:
+  & { [key in keyof Omit<
+    T,
+    (TPropKeysToOmit extends string | number | symbol ? TPropKeysToOmit : never)
+    | (TPropKeysToProtect extends string | number | symbol ? TPropKeysToProtect : never)
+    | (keyof TChildWards extends string | number | symbol ? keyof TChildWards : never)
+  >]: T[key] }
+  // child wards
+  & (TChildWards extends { [key in Exclude<WardableKeysOf<T>, TPropKeysToOmit>]?: Ward.Config<T[key]> }
     ? {
-        [key in keyof TChildWards]: Ward<
-          key extends keyof T
-            ? T[key] extends object
-              ? T[key]
-              : never
-            : never,
-          TChildWards[key]
-        >;
-      }
-    : {}) & {
+      [key in keyof TChildWards]: Ward<
+        (key extends keyof T
+          ? (T[key] extends object
+            ? T[key]
+            : never)
+          : never),
+        TChildWards[key]
+      >;
+    }
+    : {})
+  // special ward accessors and configs
+  & {
     /**
      * A property/method that can be used to attempt to set or access a property that has potentially been warded.
      * A missing method or property will return the same as a hidden method or property.
      */
     try: WardTryer<T>;
+    /** @alias {@link try} */
+    _: WardTryer<T>;
     [$WARD]: {
       config: Ward.Config<
         T,
@@ -1174,9 +1172,9 @@ namespace Ward {
   export type TryResult<
     T extends object,
     TOperation extends
-      | 'canGet'
-      | 'canSet'
-      | 'trySet' = any,
+    | 'canGet'
+    | 'canSet'
+    | 'trySet' = any,
     TKey extends keyof T = keyof T
   > = [
     value: T[TKey] | undefined,
@@ -1184,12 +1182,12 @@ namespace Ward {
   ] & { value?: T[TKey] } & {
     success: boolean;
   } & (TOperation extends 'canGet'
-      ? { canGet: boolean }
-      : TOperation extends 'canSet'
-      ? { canSet: boolean }
-      : TOperation extends 'trySet'
-      ? { wasSet: boolean }
-      : never);
+    ? { canGet: boolean }
+    : TOperation extends 'canSet'
+    ? { canSet: boolean }
+    : TOperation extends 'trySet'
+    ? { wasSet: boolean }
+    : never);
 
   //#region config types
 
@@ -1248,30 +1246,30 @@ namespace Ward {
     TEditedProp,
     TObject,
     TKey extends
-      | string
-      | number
-      | symbol
-      | unknown
+    | string
+    | number
+    | symbol
+    | unknown
   > = {
     key: TKey;
   } & (
-    | (
+      | (
         | {
-            edit?: (
-              thisArg: TObject,
-              current: TEditedProp
-            ) => TEditedProp;
-          }
+          edit?: (
+            thisArg: TObject,
+            current: TEditedProp
+          ) => TEditedProp;
+        }
         | { value?: TEditedProp }
       )
-    | RequireAtLeastOne<{
+      | RequireAtLeastOne<{
         get: (thisArg: TObject) => TEditedProp;
         set: (
           thisArg: TObject,
           value: TEditedProp
         ) => boolean;
       }>
-  );
+    );
 
   /**
    * Can check if a given object has a Ward configuration in it's class.
@@ -1284,8 +1282,8 @@ namespace Ward {
    */
   export type ConfigOf<T extends object> =
     T extends ClassWithConfig<T>
-      ? T['constructor'][typeof $WARD]
-      : undefined;
+    ? T['constructor'][typeof $WARD]
+    : undefined;
 
   /** @alias {@link WardableKeysOf} */
   export type GetPotentialKeysOf<
@@ -1299,10 +1297,10 @@ namespace Ward {
     T extends object
   > = HasConfig<T> extends true
     ? ConfigOf<T> extends {
-        DEFAULT_HIDDEN_KEYS: any;
-      }
-      ? true
-      : false
+      DEFAULT_HIDDEN_KEYS: any;
+    }
+    ? true
+    : false
     : false;
 
   /**
@@ -1312,10 +1310,10 @@ namespace Ward {
     T extends object
   > = HasConfig<T> extends true
     ? ConfigOf<T> extends {
-        DEFAULT_HIDDEN_KEYS: any;
-      }
-      ? ConfigOf<T>['DEFAULT_HIDDEN_KEYS'][any]
-      : unknown
+      DEFAULT_HIDDEN_KEYS: any;
+    }
+    ? ConfigOf<T>['DEFAULT_HIDDEN_KEYS'][any]
+    : unknown
     : unknown;
 
   /**
@@ -1345,10 +1343,10 @@ namespace Ward {
     T extends object
   > = HasConfig<T> extends true
     ? ConfigOf<T> extends {
-        DEFAULT_PROTECTED_KEYS: any;
-      }
-      ? true
-      : false
+      DEFAULT_PROTECTED_KEYS: any;
+    }
+    ? true
+    : false
     : false;
 
   /**
@@ -1358,10 +1356,10 @@ namespace Ward {
     T extends object
   > = HasConfig<T> extends true
     ? ConfigOf<T> extends {
-        DEFAULT_PROTECTED_KEYS: any;
-      }
-      ? ConfigOf<T>['DEFAULT_PROTECTED_KEYS'][any]
-      : unknown
+      DEFAULT_PROTECTED_KEYS: any;
+    }
+    ? ConfigOf<T>['DEFAULT_PROTECTED_KEYS'][any]
+    : unknown
     : unknown;
 
   /**
@@ -1391,10 +1389,10 @@ namespace Ward {
     T extends object
   > = HasConfig<T> extends true
     ? ConfigOf<T> extends {
-        DEFAULT_ALTERATIONS: any;
-      }
-      ? true
-      : false
+      DEFAULT_ALTERATIONS: any;
+    }
+    ? true
+    : false
     : false;
 
   /**
@@ -1404,10 +1402,10 @@ namespace Ward {
     T extends object
   > = HasConfig<T> extends true
     ? ConfigOf<T> extends {
-        DEFAULT_ALTERATIONS: any;
-      }
-      ? keyof ConfigOf<T>['DEFAULT_ALTERATIONS']
-      : unknown
+      DEFAULT_ALTERATIONS: any;
+    }
+    ? keyof ConfigOf<T>['DEFAULT_ALTERATIONS']
+    : unknown
     : unknown;
 
   /**
@@ -1417,10 +1415,10 @@ namespace Ward {
     T extends object
   > = HasConfig<T> extends true
     ? ConfigOf<T> extends {
-        DEFAULT_ALTERATIONS: any;
-      }
-      ? ConfigOf<T>['DEFAULT_ALTERATIONS']
-      : unknown
+      DEFAULT_ALTERATIONS: any;
+    }
+    ? ConfigOf<T>['DEFAULT_ALTERATIONS']
+    : unknown
     : unknown;
 
   //#endregion
@@ -1447,11 +1445,11 @@ export type ChildrenToWard<
   TPropKeysToOmit extends KeysToWard<T>
 > =
   | {
-      [key in Exclude<
-        WardableKeysOf<T>,
-        TPropKeysToOmit
-      >]?: Ward.Config<T[key]>;
-    }
+    [key in Exclude<
+      WardableKeysOf<T>,
+      TPropKeysToOmit
+    >]?: Ward.Config<T[key]>;
+  }
   | undefined
   | unknown;
 
@@ -1459,9 +1457,9 @@ export type ChildrenToWard<
 export type TryResult<
   T extends object,
   TOperation extends
-    | 'canGet'
-    | 'canSet'
-    | 'trySet' = any,
+  | 'canGet'
+  | 'canSet'
+  | 'trySet' = any,
   TKey extends keyof T = keyof T
 > = Ward.TryResult<T, TOperation, TKey>;
 
@@ -1488,7 +1486,7 @@ export type WardConfigOf<T extends object> =
 /** @alias {@link Ward.ClassWithConfig} */
 export interface ClassWithWardConfig<
   T extends object
-> extends Ward.ClassWithConfig<T> {}
+> extends Ward.ClassWithConfig<T> { }
 
 //#endregion
 
@@ -1524,44 +1522,44 @@ type WardTryer<T extends object> =
       cgKey
     >;
   } & {
-    [csKey in TCanSet]: Ward.TryResult<
-      T,
-      'canSet',
-      csKey
-    >;
-  }) &
-    /**
-     * Attempt to get or set the given potentially warded properties.
-     *
-     * @param to - An object containing the properties to attempt to get or set.
-     *
-     * @returns An object containing the results of the attempted gets and sets in the format: {[propKey]: [value: T[propKey]| undefined, canGet: Ward.Can]}.
-     */
-    (<
-      TCanGet extends KeyofTExceptCtor<T> = never,
-      TCanSet extends KeyofTExceptCtor<T> = never,
-      TTrySet extends KeyofTExceptCtor<T> = never
-    >(
-      to: RequireAtLeastOne<{
-        get: Iterable<TCanGet>;
-        set:
-          | {
-              [key in TTrySet]?: T[key];
-            }
-          | Iterable<
-              | TCanSet
-              | {
-                  [key in TTrySet]?: T[key];
-                }
-            >;
-      }>
-    ) => {
-      [cgKey in TCanGet]: Ward.TryResult<
+      [csKey in TCanSet]: Ward.TryResult<
         T,
-        'canGet',
-        cgKey
+        'canSet',
+        csKey
       >;
-    } & {
+    }) &
+  /**
+   * Attempt to get or set the given potentially warded properties.
+   *
+   * @param to - An object containing the properties to attempt to get or set.
+   *
+   * @returns An object containing the results of the attempted gets and sets in the format: {[propKey]: [value: T[propKey]| undefined, canGet: Ward.Can]}.
+   */
+  (<
+    TCanGet extends KeyofTExceptCtor<T> = never,
+    TCanSet extends KeyofTExceptCtor<T> = never,
+    TTrySet extends KeyofTExceptCtor<T> = never
+  >(
+    to: RequireAtLeastOne<{
+      get: Iterable<TCanGet>;
+      set:
+      | {
+        [key in TTrySet]?: T[key];
+      }
+      | Iterable<
+        | TCanSet
+        | {
+          [key in TTrySet]?: T[key];
+        }
+      >;
+    }>
+  ) => {
+    [cgKey in TCanGet]: Ward.TryResult<
+      T,
+      'canGet',
+      cgKey
+    >;
+  } & {
       [csKey in TCanSet]: Ward.TryResult<
         T,
         'canSet',
@@ -1574,88 +1572,88 @@ type WardTryer<T extends object> =
         tsKey
       >;
     }) &
-    /**
-     * Attempt to get or set the given potentially warded properties.
-     *
-     * @param to - An object containing the properties to attempt to get or set.
-     *
-     * @returns An object containing the results of the attempted gets and sets in the format: {[propKey]: [value: T[propKey]| undefined, canGet: Ward.Can]}.
-     */
-    (<
-      TCanGet extends KeyofTExceptCtor<T> = never,
-      TTrySet extends KeyofTExceptCtor<T> = never
-    >(
-      to: RequireAtLeastOne<{
-        get: Iterable<TCanGet>;
-        set:
-          | {
-              [key in TTrySet]?: T[key];
-            }
-          | Iterable<{
-              [key in TTrySet]?: T[key];
-            }>;
-      }>
-    ) => {
-      [cgKey in TCanGet]: Ward.TryResult<
-        T,
-        'canGet',
-        cgKey
-      >;
-    } & {
+  /**
+   * Attempt to get or set the given potentially warded properties.
+   *
+   * @param to - An object containing the properties to attempt to get or set.
+   *
+   * @returns An object containing the results of the attempted gets and sets in the format: {[propKey]: [value: T[propKey]| undefined, canGet: Ward.Can]}.
+   */
+  (<
+    TCanGet extends KeyofTExceptCtor<T> = never,
+    TTrySet extends KeyofTExceptCtor<T> = never
+  >(
+    to: RequireAtLeastOne<{
+      get: Iterable<TCanGet>;
+      set:
+      | {
+        [key in TTrySet]?: T[key];
+      }
+      | Iterable<{
+        [key in TTrySet]?: T[key];
+      }>;
+    }>
+  ) => {
+    [cgKey in TCanGet]: Ward.TryResult<
+      T,
+      'canGet',
+      cgKey
+    >;
+  } & {
       [tsKey in TTrySet]: Ward.TryResult<
         T,
         'trySet',
         tsKey
       >;
     }) &
-    /**
-     * A property/method that can be used to attempt to set or access a property that has potentially been warded.
-     * A missing method or property will return the same as a hidden method or property.
-     *
-     * @param to - The operation to attempt to perform.
-     * @param propKey - The property key to attempt to get or set.
-     *
-     * @returns An object containing the results of the attempted gets and sets in the format: [value: T[propKey] | undefined, canGet: Ward.Can].
-     */
-    (<TPropKey extends keyof T>(
-      to: typeof Ward.Can.Get,
-      propKey: TPropKey
-    ) => Ward.TryResult<T, 'canGet'>) &
-    /**
-     * A property/method that can be used to attempt to set or access a property that has potentially been warded.
-     * A missing method or property will return the same as a hidden method or property.
-     *
-     * @param to - The operation to attempt to perform.
-     * @param propKey - The property key to attempt to get or set.
-     *
-     * @returns An object containing the results of the attempted gets and sets in the format: [value: T[propKey] | undefined, canGet: Ward.Can].
-     */
-    (<TPropKey extends keyof T>(
-      to: typeof Ward.Can.Set,
-      propKey: TPropKey
-    ) => Ward.TryResult<T, 'canSet'>) &
-    /**
-     * A property/method that can be used to attempt to set or access a property that has potentially been warded.
-     * A missing method or property will return the same as a hidden method or property.
-     *
-     * @param to - The operation to attempt to perform.
-     * @param propKey - The property key to attempt to get or set.
-     * @param value - The value to set the property to. If not provided, nothing will try to be set (you can't even provide undefined!) (only used when `to` is set to `Ward.Can.Set`)
-     *
-     * @returns An object containing the results of the attempted gets and sets in the format: [value: T[propKey] | undefined, canGet: Ward.Can].
-     */
-    (<
-      TPropKey extends keyof T,
-      TOperation extends Ward.Can
-    >(
-      to: TOperation,
-      propKey: TPropKey,
-      value: TOperation extends typeof Ward.Can.Set
-        ? T[TPropKey]
-        : never
-    ) => Ward.TryResult<T, 'trySet'>) & {
-      [key in KeyofTExceptCtor<T>]?: T[key];
-    };
+  /**
+   * A property/method that can be used to attempt to set or access a property that has potentially been warded.
+   * A missing method or property will return the same as a hidden method or property.
+   *
+   * @param to - The operation to attempt to perform.
+   * @param propKey - The property key to attempt to get or set.
+   *
+   * @returns An object containing the results of the attempted gets and sets in the format: [value: T[propKey] | undefined, canGet: Ward.Can].
+   */
+  (<TPropKey extends keyof T>(
+    to: typeof Ward.Can.Get,
+    propKey: TPropKey
+  ) => Ward.TryResult<T, 'canGet'>) &
+  /**
+   * A property/method that can be used to attempt to set or access a property that has potentially been warded.
+   * A missing method or property will return the same as a hidden method or property.
+   *
+   * @param to - The operation to attempt to perform.
+   * @param propKey - The property key to attempt to get or set.
+   *
+   * @returns An object containing the results of the attempted gets and sets in the format: [value: T[propKey] | undefined, canGet: Ward.Can].
+   */
+  (<TPropKey extends keyof T>(
+    to: typeof Ward.Can.Set,
+    propKey: TPropKey
+  ) => Ward.TryResult<T, 'canSet'>) &
+  /**
+   * A property/method that can be used to attempt to set or access a property that has potentially been warded.
+   * A missing method or property will return the same as a hidden method or property.
+   *
+   * @param to - The operation to attempt to perform.
+   * @param propKey - The property key to attempt to get or set.
+   * @param value - The value to set the property to. If not provided, nothing will try to be set (you can't even provide undefined!) (only used when `to` is set to `Ward.Can.Set`)
+   *
+   * @returns An object containing the results of the attempted gets and sets in the format: [value: T[propKey] | undefined, canGet: Ward.Can].
+   */
+  (<
+    TPropKey extends keyof T,
+    TOperation extends Ward.Can
+  >(
+    to: TOperation,
+    propKey: TPropKey,
+    value: TOperation extends typeof Ward.Can.Set
+      ? T[TPropKey]
+      : never
+  ) => Ward.TryResult<T, 'trySet'>) & {
+    [key in KeyofTExceptCtor<T>]?: T[key];
+  };
 
 //#endregion
 
@@ -1672,11 +1670,11 @@ type WardTryer<T extends object> =
 export const implementsWardConfig = <
   TClass extends Class<T>,
   T extends
-    | (object &
-        ClassWithWardConfig<
-          T extends object ? T : never
-        >)
-    | unknown = InstanceType<TClass>
+  | (object &
+    ClassWithWardConfig<
+      T extends object ? T : never
+    >)
+  | unknown = InstanceType<TClass>
 >(
   cls: TClass,
   _: any

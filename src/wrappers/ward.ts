@@ -180,7 +180,7 @@ function ward<
     !protectedKeys &&
     !wardedChildren
   ) {
-    return target as Ward<
+    return target as unknown as Ward<
       T,
       TPropKeysToOmit,
       TPropKeysToProtect,
@@ -274,7 +274,7 @@ function ward<
         return true;
       }
     },
-  }) as Ward<
+  }) as unknown as Ward<
     T,
     TPropKeysToOmit,
     TPropKeysToProtect,

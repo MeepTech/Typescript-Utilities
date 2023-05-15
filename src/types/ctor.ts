@@ -1,11 +1,11 @@
-import { MapTuple, First, Last } from './mod';
+import { ObjectFrom, FirstOf, LastOf } from './mod';
 require('../helpers/static');
 
 /**
  * A class type that can be constructed. (non-abstract)
  */
 export type Constructor<T> = {
-  new (...args: any[]): T;
+  new(...args: any[]): T;
   prototype: T;
 };
 
@@ -24,7 +24,7 @@ export type Constructable<
   T = InstanceType<TCtor>
 > =
   | InstanceType<TCtor>
-  | MapTuple<ConstructorParameters<TCtor>>;
+  | ObjectFrom<ConstructorParameters<TCtor>>;
 
 /**
  * A type or the spread object based arugments used to construct the type.
@@ -34,7 +34,7 @@ export type SpreadConstructable<
   T = InstanceType<TCtor>
 > =
   | InstanceType<TCtor>
-  | First<ConstructorParameters<TCtor>>;
+  | FirstOf<ConstructorParameters<TCtor>>;
 
 /**
  * A type or the arugments used to construct the type.
@@ -46,7 +46,7 @@ export type HybridConstructable<
 > =
   | InstanceType<TCtor>
   | Extract<
-      Last<ConstructorParameters<TCtor>>,
-      { [key: string | number | symbol]: any }
-    >
-  | MapTuple<ConstructorParameters<TCtor>>;
+    LastOf<ConstructorParameters<TCtor>>,
+    { [key: string | number | symbol]: any }
+  >
+  | ObjectFrom<ConstructorParameters<TCtor>>;

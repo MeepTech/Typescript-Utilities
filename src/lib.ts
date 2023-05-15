@@ -10,13 +10,15 @@ export type {
   HybridConstructable,
 } from './types/ctor';
 export type {
-  First,
-  Last,
+  FirstOf,
+  LastOf,
   Require,
-  MapTuple,
+  ObjectFrom,
   Protect,
 } from './types/mod';
-export type { IsUnion } from './types/is';
+export type {
+  IsUnion
+} from './types/is';
 export type {
   RequireAtLeastOne,
   RequireOnlyOne,

@@ -21,7 +21,7 @@
   },
   "scripts": {
     "check-types": "tsc -noEmit -p \"tsconfig.tests.json\"",
-    "test": "tsc -noEmit -p \"tsconfig.tests.json\" && jest",
+    "test": "npx jest",
     "build": "webpack",
     "build-dev": "webpack --env dev",
     "pack": "rm -r -f \"dist/npm/prod\" && mkdir -p \"dist/npm/prod\" && cd \"dist/npm/prod\" && npm pack \"../../../build/prod\"",

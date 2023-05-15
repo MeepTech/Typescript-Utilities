@@ -103,20 +103,15 @@ namespace Check {
   /**
    * Check if an object is a plain object (not an instance of a class, or an array, or a function, etc)
    */
-  export const isPlainObject: TypeGuard<
-    Record<any, any> & { constructor: Object }
-  > = (
+  export const isPlainObject: TypeGuard<Record<any, unknown>> = (
     value: unknown
-  ): value is Record<any, any> & {
-    constructor: Object
-  } => {
-      if (!isObject(value)) {
-        return false;
-      }
+  ): value is Record<any, unknown> => {
+    if (!isObject(value)) {
+      return false;
+    }
 
-      return value?.constructor === Object;
-    };
-
+    return value?.constructor === Object;
+  };
 
   /**
    * Check if an object has a property with the given key

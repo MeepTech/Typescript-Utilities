@@ -2,7 +2,7 @@
 /**
  * Get the first element of a tuple.
  */
-export type First<T extends any[]>
+export type FirstOf<T extends any[]>
   = T extends [infer F, ...any[]]
   ? F
   : never;
@@ -10,15 +10,31 @@ export type First<T extends any[]>
 /**
  * Get the last element of a tuple.
  */
-export type Last<T extends any[]>
+export type LastOf<T extends any[]>
   = T extends [...any[], infer L]
   ? L
   : never;
 
 /**
+ * Get the first element of a tuple.
+ */
+export type TrimFirstOf<T extends any[]>
+  = T extends [first: any, ...rest: infer R]
+  ? R
+  : never;
+
+/**
+ * Get the last element of a tuple.
+ */
+export type TrimLastOf<T extends any[]>
+  = T extends [...rest: infer R, last: any]
+  ? R
+  : never;
+
+/**
  * Map a tuple to an object with the keys of the tuple as the keys of the object.
  */
-export type MapTuple<Tuple extends Array<{ key: string }>> = {
+export type ObjectFrom<Tuple extends Array<{ key: string }>> = {
   [key in Tuple[number]['key']]: Extract<Tuple[number], { key: key }>
 }
 
@@ -33,3 +49,10 @@ export type Require<T, K extends keyof T>
  */
 export type Protect<T, K extends keyof T>
   = T & Readonly<Pick<T, K>>;
+
+/**
+ * Used to make a read-only type writeable.
+ */
+export type Writeable<T extends { [x: string]: any }, K extends string> = {
+  [P in K]: T[P];
+}
